@@ -1,0 +1,4 @@
+---
+
+kernel_target_architectures:
+  - mipsel

@@ -1,0 +1,31 @@
+---
+
+- set_fact:
+    kernel_build_packages:
+      - bison
+      - build-essential
+      - ccache
+      - dh-exec
+      - git
+      - fakeroot
+      - flex
+      - libncursesw5-dev 
+      - libtinfo-dev
+      - libssl-dev
+  when:
+    ansible_os_family == 'Debian'
+
+- name: install basic C development tools
+  package: name={{ item }} state=present
+  with_items: "{{ kernel_build_packages }}"
+  become: true
+
+- name: install cross-binutils
+  package: name=binutils-{{ item }}-linux-gnu state=present
+  with_items: "{{ kernel_target_architectures }}"
+  become: true
+
+- name: install C cross-compilers
+  package: name=gcc-{{ item }}-linux-gnu
+  with_items: "{{ kernel_target_architectures }}"
+  become: true
