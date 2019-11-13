@@ -3,3 +3,8 @@
 - hosts: kerneldev
   roles:
     - kerneldev
+
+- hosts: sbuild
+  roles:
+    - sbuild
+

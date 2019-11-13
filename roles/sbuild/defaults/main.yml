@@ -1,0 +1,9 @@
+---
+
+ubuntu_mirror: "http://ru.archive.ubuntu.com/ubuntu"
+os_release: bionic
+os_release_numeric: "18.04"
+ccache_volume: "/var/cache/ccache"
+ccache_max_size: "16G"
+
+staging_repo_dir: /srv/export/repos

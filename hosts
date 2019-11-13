@@ -1,2 +1,6 @@
 [kerneldev]
 localhost ansible_connection=local
+
+[sbuild]
+localhost ansible_connection=local
+
