@@ -1,0 +1,7 @@
+---
+
+distccd_allowed_nets:
+  - 127.0.0.1
+
+distccd_listen:
+  - 127.0.0.1

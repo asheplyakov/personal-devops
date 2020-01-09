@@ -1,0 +1,5 @@
+---
+
+- name: restart distccd
+  service: name=distcc state=restarted
+  become: true

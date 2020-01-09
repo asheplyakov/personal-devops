@@ -1,5 +1,9 @@
 ---
 
+- hosts: distccd
+  roles:
+    - distccd
+
 - hosts: kerneldev
   roles:
     - kerneldev
