@@ -12,3 +12,6 @@
   roles:
     - sbuild
 
+- hosts: misc
+  roles:
+    - misc

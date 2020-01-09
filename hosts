@@ -4,6 +4,8 @@ localhost ansible_connection=local
 [sbuild]
 localhost ansible_connection=local
 
+[misc]
+localhost ansible_connection=local
 
 [distccd]
 localhost ansible_connection=local

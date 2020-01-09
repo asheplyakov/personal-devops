@@ -1,0 +1,11 @@
+---
+
+- name: install GNU screen
+  package: name=screen state=present
+  become: true
+
+- name: configure GNU screen status line
+  copy:
+    src: templates/screenrc
+    dest: "{{ lookup('env', 'HOME') }}/.screenrc"
+    mode: 0644
