@@ -1,0 +1,9 @@
+---
+
+- name: install Debian development tools
+  package: name={{ item }} state=present
+  with_items:
+    - build-essential
+    - devscripts
+    - fakeroot
+  become: true
