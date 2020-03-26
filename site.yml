@@ -1,5 +1,9 @@
 ---
 
+- hosts: hasher
+  roles:
+    - hasher
+
 - hosts: distccd
   roles:
     - distccd
