@@ -15,6 +15,20 @@
   when:
     ansible_os_family == 'Debian'
 
+- set_fact:
+    kernel_build_packages:
+      - bison
+      - ccache
+      - gcc
+      - git-core
+      - fakeroot
+      - flex
+      - libncursesw-devel
+      - libtinfo-devel
+      - libssl-devel
+      - make
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+
 - name: install basic C development tools
   package: name={{ item }} state=present
   with_items: "{{ kernel_build_packages }}"
