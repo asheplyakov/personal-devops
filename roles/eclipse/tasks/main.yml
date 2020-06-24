@@ -1,0 +1,59 @@
+---
+
+- set_fact:
+    eclipse_tgz: "{{ lookup('env', 'HOME') }}/Downloads/{{ eclipse_download_url|basename|regex_replace('[&].*$', '') }}"
+
+- debug:
+    msg: "eclipse_tgs = {{ eclipse_tgz }}"
+
+- name: ensure ~/Downloads directory exists
+  file:
+    path: "{{ eclipse_tgz | dirname }}"
+    state: directory
+
+- name: download eclipse
+  get_url:
+    url: "{{ eclipse_download_url }}"
+    dest: "{{ eclipse_tgz }}"
+  async: 7200
+  poll: 0
+  register: eclipse_download_job
+
+
+- name: install Java runtime
+  package: name={{ item }} state=present
+  with_items:
+    - default-jre
+  when:
+    - ansible_os_family == 'Debian'
+  become: true
+
+- name: set GTK_IM_MODULE variable in /etc/environment
+  lineinfile:
+    line: GTK_IM_MODULE=ibus
+    path: /etc/environment
+    state: present
+  become: true
+
+- name: create eclipse installation dir
+  file:
+    path: "{{ eclipse_tgz | dirname }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  become: true
+
+- name: wait eclipse download to complete
+  async_status:
+    jid: "{{ eclipse_download_job.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 360
+  delay: 10
+
+- name: unpack eclipse
+  unarchive:
+    src: "{{ eclipse_tgz }}"
+    dest: "{{ eclipse_prefix }}"
+  become: true

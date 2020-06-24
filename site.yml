@@ -19,3 +19,7 @@
 - hosts: misc
   roles:
     - misc
+
+- hosts: eclipse
+  roles:
+    - eclipse

@@ -1,0 +1,8 @@
+---
+
+eclipse_version: '2020-03'
+
+eclipse_download_url: "https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/{{ eclipse_version }}/R/eclipse-cpp-{{ eclipse_version }}-R-incubation-linux-gtk-x86_64.tar.gz&r=1"
+
+eclipse_prefix: "/opt/eclipse-{{ eclipse_version }}"
+
