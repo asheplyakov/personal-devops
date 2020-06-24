@@ -9,3 +9,9 @@
     src: templates/screenrc
     dest: "{{ lookup('env', 'HOME') }}/.screenrc"
     mode: 0644
+
+- name: set proper LESS environment variable by default
+  lineinfile:
+    path: /etc/environment
+    line: LESS="-RX"
+  become: true
