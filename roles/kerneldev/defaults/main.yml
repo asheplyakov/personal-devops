@@ -1,4 +1,6 @@
 ---
 
 kernel_target_architectures:
+  - aarch64
+  - armhf
   - mipsel
