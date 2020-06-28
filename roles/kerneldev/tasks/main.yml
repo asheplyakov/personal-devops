@@ -35,11 +35,11 @@
   become: true
 
 - name: install cross-binutils
-  package: name=binutils-{{ item }}-linux-gnu state=present
-  with_items: "{{ kernel_target_architectures }}"
+  package: name=binutils-{{ item }} state=present
+  with_items: "{{ cross_toolchains }}"
   become: true
 
 - name: install C cross-compilers
-  package: name=gcc-{{ item }}-linux-gnu
-  with_items: "{{ kernel_target_architectures }}"
+  package: name=gcc-{{ item }}
+  with_items: "{{ cross_toolchains }}"
   become: true
