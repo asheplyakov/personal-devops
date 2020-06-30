@@ -64,3 +64,8 @@
   when:
     - hasher_user is defined
     - hasher_enable_nopasswd_sudo|default(true)|bool
+
+- include_tasks: qemu-user.yml
+  loop: "{{ crossbuild_arch }}"
+  loop_control:
+    loop_var: arch

@@ -1,0 +1,17 @@
+---
+
+- name: install qemu-user
+  apt_rpm:
+    pkg: "qemu-user-static-{{ arch }}"
+    state: present
+  become: true
+
+- name: create binfmt-misc entry
+  copy:
+    src: files/qemu-user-static-{{ arch }}.conf
+    dest: /etc/binfmt.d/qemu-user-static-{{ arch }}.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart systemd-binfmt
+  become: true

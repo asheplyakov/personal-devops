@@ -1,0 +1,4 @@
+---
+
+crossbuild_arch:
+  - aarch64
