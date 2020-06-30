@@ -35,6 +35,7 @@
     getent passwd {{ hasher_user }}_a
   register: user_a_getent
   failed_when: False
+  changed_when: False
   when: hasher_user is defined
 
 - name: add user to hasher group
