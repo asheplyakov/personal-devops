@@ -5,3 +5,9 @@
     name: systemd-binfmt
     state: restarted
   become: true
+
+- name: apply sysctl.d knobs
+  service:
+    name: systemd-sysctl
+    state: restarted
+  become: true
