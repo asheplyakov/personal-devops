@@ -47,3 +47,12 @@
 - name: install python logging
   raw: apt-get install -y python-modules-logging
   when: python2_logging_result.rc != 0
+
+- name: check if python distutils module is available
+  raw: python2 -c 'import sys; import distutils; sys.exit(0)'
+  register: python2_distutils_result
+  failed_when: False
+
+- name: install python distutils
+  raw: apt-get install -y python-modules-distutils
+  when: python2_distutils_result.rc != 0
