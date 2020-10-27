@@ -68,6 +68,7 @@
     - hasher_enable_nopasswd_sudo|default(true)|bool
 
 - include_tasks: qemu-user.yml
+  when: arch != ansible_architecture
   loop: "{{ crossbuild_arch }}"
   loop_control:
     loop_var: arch
