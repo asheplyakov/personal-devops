@@ -1,0 +1,10 @@
+---
+
+- name: install gear package
+  apt_rpm:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - gear
+    - git-core
+  become: true

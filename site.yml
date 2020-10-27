@@ -4,6 +4,10 @@
   roles:
     - hasher
 
+- hosts: gear
+  roles:
+    - gear
+
 - hosts: distccd
   roles:
     - distccd
