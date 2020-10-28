@@ -67,6 +67,54 @@
     - hasher_user is defined
     - hasher_enable_nopasswd_sudo|default(true)|bool
 
+- name: find out hasher_user home directory
+  shell: >
+    getent passwd {{ hasher_user }} | cut -d ':' -f 6
+  register: hasher_user_home
+  changed_when: False
+
+- set_fact:
+    hasher_config: "{{ hasher_user_home.stdout_lines[0] }}/.hasher/config"
+
+- name: ensure ~/.hasher directory exists
+  file:
+    dest: "{{ hasher_config|dirname }}"
+    state: directory
+    owner: "{{ hasher_user }}"
+    mode: 0755
+  become: true
+
+- name: check if ~/.hasher/config exists
+  stat:
+    path: "{{ hasher_config }}"
+  register: hasher_config_stat
+  failed_when: False
+  changed_when: False
+  become:  true
+
+- name: create ~/.hasher/config
+  template:
+    dest: "{{ hasher_config }}"
+    src: ./templates/hasher-config.j2
+    owner: "{{ hasher_user }}"
+    mode: 0644
+  when:
+    - not(hasher_config_stat.stat.exists)
+    - maintainer is defined
+  become: true
+
+- name: set packager in ~/.hasher/config
+  lineinfile:
+    path: "{{ hasher_config }}"
+    regexp: '^packager[=]'
+    line: "packager=\"{{ maintainer.name }} <{{ maintainer.email }}>\""
+    owner: "{{ hasher_user }}"
+    mode: 0644
+  when:
+    - hasher_config_stat.stat.exists
+    - maintainer is defined
+  become: true
+
 - include_tasks: qemu-user.yml
   when: arch != ansible_architecture
   loop: "{{ crossbuild_arch }}"
