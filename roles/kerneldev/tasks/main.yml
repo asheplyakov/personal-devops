@@ -12,13 +12,16 @@
       - libncursesw5-dev 
       - libtinfo-dev
       - libssl-dev
+      - openssl
   when:
     ansible_os_family == 'Debian'
 
 - set_fact:
     kernel_build_packages:
+      - bc
       - bison
       - ccache
+      - cpio
       - gcc
       - git-core
       - fakeroot
@@ -27,6 +30,7 @@
       - libtinfo-devel
       - libssl-devel
       - make
+      - openssl
   when: ansible_distribution_file_path == '/etc/altlinux-release'
 
 - name: install basic C development tools
