@@ -27,3 +27,8 @@
 - hosts: eclipse
   roles:
     - eclipse
+
+- hosts: debuginfo
+  roles:
+    - debuginfo
+

@@ -1,0 +1,23 @@
+---
+
+- name: install dbgsym keyring for Ubuntu
+  package: name=ubuntu-dbgsym-keyring state=present
+  when:
+    - ansible_distribution == 'Ubuntu'
+  become: true
+
+- name: enable ddebs for Ubuntu
+  template:
+    src: "ddebs_{{ ansible_distribution| lower }}.list.j2"
+    dest: /etc/apt/sources.list.d/ddebs.list
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - update apt cache
+  vars:
+     codename: "{{ ansible_distribution_release }}"
+  become: true
+
+- name: run handlers
+  meta: flush_handlers
