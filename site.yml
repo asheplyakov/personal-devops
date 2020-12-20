@@ -32,3 +32,6 @@
   roles:
     - debuginfo
 
+- hosts: mesadev
+  roles:
+    - mesadev

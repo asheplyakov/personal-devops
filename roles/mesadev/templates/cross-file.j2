@@ -1,0 +1,15 @@
+[binaries]
+c = '/usr/lib/ccache/{{ target_triplet }}-gcc'
+cpp = '/usr/lib/ccache/{{ target_triplet }}-g++'
+ar = '/usr/bin/{{ target_triplet }}-ar'
+strip = '/usr/bin/{{ target_triplet }}-strip'
+exe_wrapper = '/usr/bin/qemu-{{ target_qemu_cpu }}-static'
+
+[host_machine]
+system = 'linux'
+cpu_family = '{{ target_cpu_family }}'
+cpu = '{{ target_cpu }}'
+endian = '{{ target_endian|default("little") }}'
+
+[properties]
+need_exe_wrapper = true

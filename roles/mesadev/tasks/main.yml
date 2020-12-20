@@ -1,0 +1,55 @@
+---
+
+- set_fact:
+    target_debian_arch: armhf
+    target_triplet: arm-linux-gnueabihf
+    target_cpu_family: arm
+    target_cpu: armv7l
+
+- name: install target cross-compilers and tools
+  package:
+    name: "{{ item }}-{{ target_triplet }}"
+    state: present
+  with_items:
+    - gcc
+    - g++
+    - pkg-config
+  become: true
+
+- name: install build tools
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - bison
+    - ccache
+    - flex
+    - meson
+    - ninja-build
+    - python3-mako
+  become: true
+
+- name: install target libraries
+  package:
+    name: "{{ item }}:{{ target_debian_arch }}"
+    state: present
+  with_items:
+    - libdrm-dev
+    - libexpat1-dev
+    - libx11-xcb-dev
+    - libxcb-dri2-0-dev
+    - libxcb-dri3-dev
+    - libxcb-glx0-dev
+    - libxcb-present-dev
+    - libxcb-sync-dev
+    - libxdamage-dev
+    - libxext-dev
+    - libxfixes-dev
+    - libxshmfence-dev
+    - libxrandr-dev
+    - libxxf86vm-dev
+    - libudev-dev
+    - libunwind-dev
+    - x11proto-dev
+    - zlib1g-dev
+  become: true
