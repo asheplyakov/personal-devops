@@ -43,6 +43,12 @@
     - libudev-devel
     - llvm10.0-devel
     - libunwind-devel
+    - libwayland-client-devel
+    - libwayland-egl-devel
+    - libwayland-server-devel
     - xorg-proto-devel
+    - wayland-devel
+    - wayland-protocols
+    -
   when: 
     - ansible_distribution_file_path == '/etc/altlinux-release'
