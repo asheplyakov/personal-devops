@@ -41,3 +41,7 @@
 - hosts: mesadev
   roles:
     - mesadev
+
+- hosts: 0wn
+  roles:
+    - 0wn
