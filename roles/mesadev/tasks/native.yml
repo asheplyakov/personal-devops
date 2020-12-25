@@ -1,0 +1,48 @@
+---
+
+
+- name: install git
+  package: name={{ item }} state=present
+  with_items:
+    - git
+    - patch
+ 
+- name: install C/C++ compiler
+  package: name={{ item }} state=present
+  with_items:
+    - gcc
+    - gcc-c++
+  when: 
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+
+- name: install build tools
+  package: name={{ item }} state=present
+  with_items:
+    - bison
+    - ccache
+    - cmake
+    - flex
+    - meson
+    - ninja-build
+    - pkg-config
+    - python3-module-mako
+  when: 
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+
+- name: install Mesa dependencies
+  package: name={{ item }} state=present
+  with_items:
+    - libdrm-devel
+    - libexpat-devel
+    - libxcb-devel
+    - libXext-devel
+    - libXfixes-devel
+    - libxshmfence-devel
+    - libXrandr-devel
+    - libXxf86vm-devel
+    - libudev-devel
+    - llvm10.0-devel
+    - libunwind-devel
+    - xorg-proto-devel
+  when: 
+    - ansible_distribution_file_path == '/etc/altlinux-release'
