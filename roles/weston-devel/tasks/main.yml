@@ -1,0 +1,87 @@
+
+- set_fact:
+    weston_devel_packages:
+      - build-essential
+      - cmake
+      - git
+      - libcairo2-dev
+      - libcolord-dev
+      - libdbus-1-dev
+      - libdrm-dev
+      - libegl1-mesa-dev
+      - libgbm-dev
+      - libgdk-pixbuf2.0-dev
+      - libgles2-mesa-dev
+      - libglu1-mesa-dev
+      - libinput-dev
+      - libjpeg-dev
+      - liblcms2-dev
+      - libpam0g-dev
+      - libpango1.0-dev
+      - libpixman-1-dev
+      - libpng-dev
+      - libsystemd-dev
+      - libudev-dev
+      - libva-dev
+      - libvpx-dev
+      - libwayland-dev
+      - libwebp-dev
+      - libx11-dev
+      - libx11-xcb-dev
+      - libxcb-composite0-dev
+      - libxcb-shape0-dev
+      - libxcb-xfixes0-dev
+      - libxcb-xkb-dev
+      - libxcb1-dev
+      - libxcursor-dev
+      - libxkbcommon-dev
+      - libxml2-dev
+      - mesa-common-dev
+      - ninja-build
+      - python3-pip
+      - wayland-protocols
+  when:
+    ansible_os_family == 'Debian'
+
+- set_fact:
+    weston_devel_packages:
+      - cmake
+      - gcc
+      - git-core
+      - libXcursor-devel
+      - libcairo-devel
+      - libcolord-devel
+      - libdbus-devel
+      - libdrm-devel
+      - libevdev-devel
+      - libgbm-devel
+      - libglvnd-devel
+      - libinput-devel
+      - libjpeg-devel
+      - liblcms2-devel
+      - libpam0-devel
+      - libpango-devel
+      - libpixman-devel
+      - libsystemd-devel
+      - libva-devel
+      - libwayland-client-devel
+      - libwayland-cursor-devel
+      - libwayland-egl-devel
+      - libwayland-server-devel
+      - libwebp-devel
+      - libxkbcommon-devel
+      - ninja-build
+      - python3-module-pip
+      - wayland-protocols
+  when:
+    ansible_os_family == 'Altlinux'
+
+
+- name: install development packages
+  package: name={{ item }} state=present
+  with_items: "{{ weston_devel_packages }}"
+  become: true
+
+- name: install meson
+  command: >
+    pip3 install --user meson
