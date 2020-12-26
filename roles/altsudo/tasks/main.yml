@@ -1,0 +1,28 @@
+---
+
+# Install sudo on ALT Linux and enable root to use sudo
+# This way tasks with become=true work when logging in either
+# as ordinary user or root.
+# Note: this role should be applied as root since sudo might
+# be unavailable yet.
+
+- name: install sudo
+  apt_rpm: pkg=sudo state=present
+
+- name: add root to sudoers
+  copy:
+    dest: /etc/sudoers.d/root
+    content: "root ALL=(ALL) NOPASSWD: ALL"
+    validate: /usr/sbin/visudo -csf %s
+
+- name: check if sudo binary permissions are OK
+  command: >
+    control sudo
+  register: control_sudo_out
+  changed_when: False
+
+- name: set sane permissions for sudo binary
+  command: >
+    control sudo public
+  when:
+    - control_sudo_out.stdout_lines[0] != 'public'

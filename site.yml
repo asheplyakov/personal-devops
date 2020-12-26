@@ -6,6 +6,11 @@
    - altpython
   gather_facts: no
 
+- hosts:
+   - altlinux
+  roles:
+   - altsudo
+
 - hosts: hasher
   roles:
     - hasher
