@@ -7,6 +7,7 @@
   raw: apt-cache show python-base
   register: apt_cache_result
   failed_when: False
+  changed_when: False
 
 - name: update APT package lists
   raw: apt-get update
@@ -16,6 +17,7 @@
   raw: python2 -c 'import sys; sys.exit(0)'
   register: python2_result
   failed_when: False
+  changed_when: False
 
 - name: install python
   raw: apt-get install -y python-base
@@ -25,6 +27,7 @@
   raw: python2 -c 'import sys; import base64; sys.exit(0)'
   register: python2_base64_result
   failed_when: False
+  changed_when: False
 
 - name: install most of python stdlib
   raw: apt-get install -y python-modules
@@ -34,6 +37,7 @@
   raw: python2 -c 'import sys; import json; sys.exit(0)'
   register: python2_json_result
   failed_when: False
+  changed_when: False
 
 - name: install python json
   raw: apt-get install -y python-modules-json
@@ -43,6 +47,7 @@
   raw: python2 -c 'import sys; import logging; sys.exit(0)'
   register: python2_logging_result
   failed_when: False
+  changed_when: False
 
 - name: install python logging
   raw: apt-get install -y python-modules-logging
