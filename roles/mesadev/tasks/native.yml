@@ -49,6 +49,6 @@
     - xorg-proto-devel
     - wayland-devel
     - wayland-protocols
-    -
+    - zlib-devel
   when: 
     - ansible_distribution_file_path == '/etc/altlinux-release'
