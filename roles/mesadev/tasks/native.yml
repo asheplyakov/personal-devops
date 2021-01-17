@@ -35,6 +35,7 @@
     - libdrm-devel
     - libexpat-devel
     - libxcb-devel
+    - libXdamage-devel
     - libXext-devel
     - libXfixes-devel
     - libxshmfence-devel
