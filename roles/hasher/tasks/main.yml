@@ -61,6 +61,7 @@
 - set_fact:
     hasher_user_home: "{{ hasher_user_home_out.stdout_lines[0] }}"
     hasher_config: "{{ hasher_user_home_out.stdout_lines[0] }}/.hasher/config"
+    aptconf_dir: "{{ hasher_user_home_out.stdout_lines[0] }}/aptconf"
 
 - name: ensure ~/.hasher directory exists
   file:
@@ -108,6 +109,36 @@
   when:
     - hasher_config_stat.stat.exists
     - maintainer is defined
+  become: true
+
+- name: ensure aptconf directory exists
+  file:
+    dest: "{{ aptconf_dir }}"
+    state: directory
+    owner: "{{ hasher_user }}"
+    mode: 0755
+  become: true
+
+- name: install sources-sisyphus.list
+  copy:
+    dest: "{{ aptconf_dir }}/sources-sisyphus.list"
+    owner: "{{ hasher_user }}"
+    mode: 0644
+    content: |
+      rpm [alt] http://mirror.yandex.ru/altlinux Sisyphus/{{ ansible_architecture }} classic
+      rpm [alt] http://mirror.yandex.ru/altlinux Sisyphus/noarch classic
+  become: true
+
+- name: create apt.conf for sisyphus
+  copy:
+    dest: "{{ aptconf_dir }}/apt-sisyphus.conf"
+    owner: "{{ hasher_user }}"
+    mode: 0644
+    content: |
+      Dir::Etc::main "/dev/null";
+      Dir::Etc::parts "/var/empty";
+      Dir::Etc::SourceParts "/var/empty";
+      Dir::Etc::sourcelist "{{ aptconf_dir }}/sources-sisyphus.list"
   become: true
 
 - include_tasks: qemu-user.yml
