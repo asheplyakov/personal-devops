@@ -1,0 +1,12 @@
+ACTION=="remove", GOTO="none_of_my_business"
+SUBSYSTEM!="block", GOTO="none_of_my_business"
+ENV{DEVTYPE}!="disk", GOTO="none_of_my_business"
+
+ENV{ID_BUS}=="usb", ENV{ID_VENDOR}=="JetFlash", ENV{ID_MODEL}=="Transcend_16GB", TAG+="asheplyakov_usb_sticks"
+ENV{ID_BUS}=="usb", ENV{ID_VENDOR}=="SPCC_Sol", ENV{ID_SERIAL_SHORT}=="98765432100C", TAG+="asheplyakov_usb_sticks"
+ENV{ID_BUS}=="usb", ENV{ID_VENDOR_ID}=="0bda", ENV{ID_MODEL_ID}=="0309", TAG+="asheplyakov_usb_sticks"
+ENV{ID_BUS}=="ata", ENV{ID_MODEL}=="ST500LM012_HN-M500MBB", ENV{ID_SERIAL_SHORT}=="S2ZYJ9KF704814", TAG+="asheplyakov_usb_sticks"
+
+TAG=="asheplyakov_usb_sticks", GROUP="asheplyakov", MODE="0660"
+
+LABEL="none_of_my_business"

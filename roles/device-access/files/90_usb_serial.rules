@@ -1,0 +1,24 @@
+
+## query device data for writing rules
+#
+# udevadm info --attribute-walk -n /dev/ttyUSBN
+#
+## reload rules
+#
+# udevadm control --reload-rules 
+## re-add all devices
+#
+# udevadm trigger
+ACTION=="remove", GOTO="dontcare"
+SUBSYSTEM!="tty", GOTO="dontcare"
+
+# SUBSYSTEMS=="usb-serial", DRIVERS=="ch341-uart", ATTRS{port_number}=="0", SYMLINK+="ttyUSB_QH"
+
+SUBSYSTEM=="tty", ATTRS{interface}=="Standard Com Port", DRIVERS=="cp210x", SYMLINK+="ttyUSB_baikal"
+
+SUBSYSTEM=="tty", ATTRS{idProduct}=="ea60", ATTRS{idVendor}=="10c4", ATTRS{serial}=="0001", SYMLINK+="ttyUSB_baikalm"
+
+# FTDI
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A50285BI", SYMLINK+="ttyUSB_baikalm_orig"
+
+LABEL="dontcare"

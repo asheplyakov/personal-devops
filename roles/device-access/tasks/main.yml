@@ -1,0 +1,15 @@
+---
+
+- name: copy udev rules
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/udev/rules.d/{{ item|basename }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload udev
+  with_items:
+    - ./files/90_usb_serial.rules
+    - ./files/99_asheplyakov_usb_sticks.rules
+  become: true

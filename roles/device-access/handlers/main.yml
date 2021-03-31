@@ -1,0 +1,5 @@
+---
+
+- name: reload udev
+  service: name=udev state=reloaded
+  become: true
