@@ -9,6 +9,7 @@
       - git
       - fakeroot
       - flex
+      - libelf-dev
       - libncursesw5-dev 
       - libtinfo-dev
       - libssl-dev
@@ -26,6 +27,7 @@
       - git-core
       - fakeroot
       - flex
+      - libelf-devel
       - libncursesw-devel
       - libtinfo-devel
       - libssl-devel
