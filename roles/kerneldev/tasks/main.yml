@@ -6,6 +6,7 @@
       - build-essential
       - ccache
       - dh-exec
+      - dwarves
       - git
       - fakeroot
       - flex
@@ -23,6 +24,7 @@
       - bison
       - ccache
       - cpio
+      - dwarves
       - gcc
       - git-core
       - fakeroot
