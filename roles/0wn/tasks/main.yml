@@ -11,6 +11,7 @@
   user:
     name: "{{ admin_user|default(current_local_user) }}"
     state: present
+    shell: /bin/bash
     password_lock: yes
 
 - name: set ssh authorized keys from local key
