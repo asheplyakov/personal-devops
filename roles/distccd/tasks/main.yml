@@ -4,6 +4,19 @@
   package: name=distcc state=present
   become: true
 
+- name: install native C compiler
+  package: name={{ item }} state=present
+  with_items:
+    - gcc
+  notify: restart distccd
+  become: true
+
+- name: install C cross-compilers
+  package: name=gcc-{{ item }} state=present
+  with_items: "{{ cross_toolchains }}"
+  notify: restart distccd
+  become: true
+
 - name: configure distcc allowed nets
   lineinfile:
     path: /etc/default/distcc
