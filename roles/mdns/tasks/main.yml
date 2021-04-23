@@ -1,0 +1,19 @@
+---
+
+- name: install mdns NSS module
+  package:
+    name: libnss-mdns
+    state: present
+  become: true
+
+- name: install avahi daemon
+  package:
+    name: avahi-daemon
+    state: present
+  become: true
+
+- name: enable avahi daemon
+  service:
+    name: avahi-daemon
+    enabled: yes
+    state: started

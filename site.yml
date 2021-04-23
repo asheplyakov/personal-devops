@@ -50,3 +50,7 @@
 - hosts: 0wn
   roles:
     - 0wn
+
+- hosts: mdns
+  roles:
+    - mdns
