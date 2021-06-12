@@ -39,6 +39,14 @@
   changed_when: False
   when: hasher_user is defined
 
+- name: remove stale /etc/hasher-priv/user.d config
+  file:
+    path: "/etc/hasher-priv/user.d/{{ hasher_user }}"
+    state: absent
+  when:
+    - hasher_user is defined
+    - user_a_getent.rc|default(0) != 0
+  become: true
 - name: add user to hasher group
   command: hasher-useradd {{ hasher_user }}
   become: true
