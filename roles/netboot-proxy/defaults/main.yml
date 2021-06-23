@@ -1,0 +1,5 @@
+---
+
+netboot_network: 10.42.0.0
+netboot_interface: eth0
+netboot_tftp_root: /srv/export/altinstall

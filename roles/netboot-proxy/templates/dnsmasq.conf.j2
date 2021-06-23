@@ -1,0 +1,42 @@
+# PXE proxy-DHCP mode. Another DHCP server on the network
+# is responsible for allocating IP addresses, and this dnsmasq only
+# 1) provides network boot information
+# 2) serves boot files via TFTP
+
+interface={{ netboot_interface }}
+
+# Disable DNS services
+port=0
+
+# therefore don't bother to read /etc/resolv.conf
+no-resolv
+# same for /etc/hosts
+no-hosts
+
+user=dnsmasq
+group=www-data
+
+log-dhcp
+
+dhcp-range={{ netboot_network }},proxy
+
+enable-tftp
+tftp-root={{ netboot_tftp_root }}
+
+# Distinguish between firmware downloading iPXE and iPXE downloading config
+dhcp-userclass=set:ipxe,iPXE
+
+# ARM64 UEFI firmware should boot iPXE (aarch64/snponly.efi)
+pxe-service=tag:!ipxe,ARM64_EFI,"Network Boot",aarch64/snponly.efi
+# iPXE booted by ARM64 UEFI should "run" this config
+pxe-service=tag:ipxe,ARM64_EFI,"iPXE boot menu",aarch64/config.ipxe
+
+# x86_64 UEFI firmware should boot iPXE (x86_64/snponly.efi)
+pxe-service=tag:!ipxe,X86-64_EFI,"Network Boot",x86_64/snponly.efi
+# iPXE booted by x86_64 UEFI should "run" this config
+pxe-service=tag:ipxe,X86-64_EFI,"iPXE boot menu",x86_64/config.ipxe
+
+# x86 BIOS PXE firmware should boot iPXE (x86_64/undionly.kpxe)
+pxe-service=tag:!ipxe,x86PC,"Network Boot",x86_64/undionly.kpxe
+# iPXE booted by x86 BIOS PXE should "run" this config
+pxe-service=tag:ipxe,x86PC,"iPXE boot menu",x86_64/config.ipxe

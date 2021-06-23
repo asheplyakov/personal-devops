@@ -1,0 +1,48 @@
+#!ipxe
+
+:start
+
+set server 10.42.0.4
+set arch x86_64
+set iso_root /altinstall/x86_64/iso
+set autoinstall_url http://10.42.0.4:8081
+set lang en_US
+
+menu PXE boot options
+item slinux9-live LiveCD Simply Linux 9.1
+item slinux9 Install Simply Linux 9.1
+item slinux9-auto Automatic installation -- Simply Linux 9.1
+item regular-xfce LiveCD Regular xfce 20210616
+item shell iPXE shell
+item exit Exit to firmware
+
+choose --default slinux9-live --timeout 10000 option && goto ${option}
+
+:slinux9-live
+kernel http://${server}/${iso_root}/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${iso_root}/ ramdisk_size=1686498 stagename=live showopts audit=0
+initrd http://${server}/${iso_root}/EFI/BOOT/full.cz
+boot
+
+:slinux9
+kernel http://${server}/${iso_root}/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${iso_root}/ ramdisk_size=1664493 stagename=altinst showopts
+initrd http://${server}/${iso_root}/EFI/BOOT/full.cz
+boot
+
+:slinux9-auto
+kernel http://${server}/${iso_root}/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${iso_root}/ ramdisk_size=1664493 stagename=altinst showopts ai curl=${autoinstall_url}/
+initrd http://${server}/${iso_root}/EFI/BOOT/full.cz
+boot
+
+:regular-xfce
+set iso_root /altinstall/x86_64/regular.xfce
+set ramdisk_size 1022524
+kernel http://${server}/${iso_root}/boot/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${iso_root}/ ramdisk_size=${ramdisk_size} stagename=live showopts lang=${lang}
+initrd http://${server}/${iso_root}/boot/full.cz
+boot
+
+:shell
+shell
+
+:exit
+exit
+

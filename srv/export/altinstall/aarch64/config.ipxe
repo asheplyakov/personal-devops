@@ -1,0 +1,36 @@
+#!ipxe
+
+:start
+
+set server 10.42.0.4
+set install_root /altinstall/aarch64
+
+menu Boot options
+item slinux9-live Simply Linux 9.1 LiveCD
+item slinux9 Install Simply Linux 9.1
+item slinux9-auto Automatic installation -- Simply Linux 9.1
+item shell iPXE shell
+item exit Exit to firmware
+
+
+choose --default slinux9-live --timeout 10000 option && goto ${option}
+:shell
+shell
+
+:exit
+exit
+
+:slinux9-live
+kernel iso/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${install_root}/iso/ ramdisk_size=1476725 stagename=live showopts console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x20230000
+initrd iso/EFI/BOOT/full.cz
+boot
+
+:slinux9
+kernel iso/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${install_root}/iso/ ramdisk_size=1476725 stagename=altinst showopts console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x20230000
+initrd iso/EFI/BOOT/full.cz
+boot
+
+:slinux9-auto
+kernel iso/EFI/BOOT/vmlinuz initrd=full.cz changedisk fastboot live automatic=method:http,network:dhcp,server:${server},directory:${install_root}/iso/ ramdisk_size=1476725 stagename=altinst showopts console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x20230000 ai curl=http://${server}/${install_root}/
+initrd iso/EFI/BOOT/full.cz
+boot

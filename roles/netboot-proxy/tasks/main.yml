@@ -1,0 +1,59 @@
+---
+
+- name: install rsync
+  package:
+    name: rsync
+    state: present
+  become: true
+
+- name: install dnsmasq
+  package:
+    name: dnsmasq
+    state: present
+  notify:
+    - kick systemd
+  become: true
+
+- name: add dnsmasq unit file
+  copy:
+    src: files/dnsmasq.service
+    dest: /etc/systemd/system/dnsmasq.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - kick systemd
+  become: true
+
+- name: force notified handlers to run
+  meta: flush_handlers
+
+- name: install dnsmasq dhcp-proxy config
+  template:
+    src: templates/dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart dnsmasq
+  become: true
+
+- name: enable and start dnsmasq
+  service:
+    name: dnsmasq
+    enabled: true
+    state: started
+  become: true
+
+- name: populate tftp root
+  synchronize:
+    src: srv/export/altinstall/
+    dest: "{{ netboot_tftp_root }}/"
+    checksum: true
+    archive: true
+    rsync_opts:
+      - '--one-file-system'
+      - '--exclude=iso'
+    verify_host: yes
+  become: true

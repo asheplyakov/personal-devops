@@ -1,0 +1,11 @@
+---
+
+- name: kick systemd
+  command: systemctl daemon-reload
+  become: true
+
+- name: restart dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted
+  become: true
