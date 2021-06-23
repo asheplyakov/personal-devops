@@ -1,0 +1,67 @@
+---
+
+- name: install webfs
+  package: name=webfs state=present
+  become: true
+
+- name: install webfs systemd unit file
+  template:
+    src: ./templates/webfs.service.j2
+    dest: /etc/systemd/system/webfs.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - kick systemd
+    - restart webfs
+  become: true
+
+- name: add iptables-restore systemd unit
+  copy:
+    dest: /etc/systemd/system/iptables-restore.service
+    src: files/iptables-restore.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - kick systemd
+  when:
+    - staticweb_enable_port_80|bool
+  become: true
+
+- name: redirect www traffic to non-privileged port
+  iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: "{{ staticweb_interface }}"
+    protocol: tcp
+    match: tcp
+    destination_port: 80
+    jump: REDIRECT
+    to_ports: "{{ staticweb_nonpriv_port }}"
+    comment: "Redirect web traffic to {{ staticweb_nonpriv_port }}"
+  notify:
+    - save iptables rules
+  when:
+    - staticweb_enable_port_80|bool
+  become: true
+
+- name: force notified handlers to run
+  meta: flush_handlers
+  become: true
+
+- name: enable webfs service
+  service:
+    name: webfs
+    enabled: true
+    state: started
+  become: true
+
+- name: enable iptables-restore service
+  service:
+    name: iptables-restore
+    enabled: true
+    state: started
+  when:
+    - staticweb_enable_port_80|bool
+  become: true

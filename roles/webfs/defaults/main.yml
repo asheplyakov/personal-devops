@@ -1,0 +1,7 @@
+---
+
+staticweb_www_root: /srv/export
+staticweb_nonpriv_port: 8081
+staticweb_max_connections: 128
+staticweb_interface: eth0
+staticweb_enable_port_80: true

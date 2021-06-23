@@ -1,0 +1,15 @@
+[Unit]
+Description=Static content http server
+After=network.target
+ConditionPathExists={{ staticweb_www_root }}
+
+[Service]
+Type=simple
+User=nobody
+Group=nogroup
+Restart=always
+WorkingDirectory={{ staticweb_www_root }}
+ExecStart=/usr/bin/webfsd -F -r {{ staticweb_www_root }} -p {{ staticweb_nonpriv_port }} -s -c {{ staticweb_max_connections }}
+
+[Install]
+WantedBy=multi-user.target

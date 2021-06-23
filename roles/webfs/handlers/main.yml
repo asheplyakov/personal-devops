@@ -1,0 +1,16 @@
+---
+
+- name: kick systemd
+  command: systemctl daemon-reload
+  become: true
+
+
+- name: restart webfs
+  service:
+    name: webfs
+    state: restarted
+  become: true
+
+- name: save iptables
+  command: iptables-save -f /etc/iptables.rules
+  become: true
