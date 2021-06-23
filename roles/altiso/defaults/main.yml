@@ -1,0 +1,4 @@
+---
+
+local_alt_mirror: /srv/export/dist/altlinux
+alt_netinstall_dir: /srv/export/altinstall
