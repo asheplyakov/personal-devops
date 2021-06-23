@@ -78,11 +78,12 @@
 - name: find out hasher_user home directory
   shell: >
     getent passwd {{ hasher_user }} | cut -d ':' -f 6
-  register: hasher_user_home
+  register: hasher_user_home_out
   changed_when: False
 
 - set_fact:
-    hasher_config: "{{ hasher_user_home.stdout_lines[0] }}/.hasher/config"
+    hasher_user_home: "{{ hasher_user_home_out.stdout_lines[0] }}"
+    hasher_config: "{{ hasher_user_home_out.stdout_lines[0] }}/.hasher/config"
 
 - name: ensure ~/.hasher directory exists
   file:
@@ -90,6 +91,15 @@
     state: directory
     owner: "{{ hasher_user }}"
     mode: 0755
+  become: true
+
+- name: ensure ~/hasher directory exists
+  file:
+    dest: "{{ hasher_user_home }}/hasher"
+    state: directory
+    owner: "{{ hasher_user }}"
+    group: "{{ hasher_user }}"
+    mode: 0775
   become: true
 
 - name: check if ~/.hasher/config exists
