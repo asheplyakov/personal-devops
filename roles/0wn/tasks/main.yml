@@ -7,12 +7,39 @@
 - set_fact:
     current_local_user: "{{ lookup('env', 'USER') }}"
 
+- name: install sudo 
+  package: name=sudo state=present
+
+- name: configure passwordless sudo for admin user
+  copy:
+    dest: "/etc/sudoers.d/{{ admin_user|default(current_local_user) }}"
+    owner: root
+    group: root
+    mode: 0600
+    content: "{{ admin_user|default(current_local_user) }} ALL=(ALL) NOPASSWD: ALL"
+
+- name: check if user account exists
+  command: >
+    getent passwd "{{ admin_user|default(current_local_user) }}"
+  register: getent_admin
+  failed_when: False
+  changed_when: False
+
+- name: terminate if getent invocation fails
+  fail:
+    msg: "failed to figure out if {{ admin_user|default(current_local_user) }} account exists"
+  when:
+    - getent_admin.rc != 0
+    - getent_admin.rc != 2
+
 - name: create my account
   user:
     name: "{{ admin_user|default(current_local_user) }}"
     state: present
     shell: /bin/bash
     password_lock: yes
+  when:
+    - getent_admin.rc == 2
 
 - name: set ssh authorized keys from local key
   authorized_key:
@@ -20,8 +47,11 @@
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
     state: present
 
-- name: install sudo 
-  package: name=sudo state=present
+- name: configure root login by ssh public key
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    state: present
 
 - name: add user to the wheel group
   user:
@@ -31,10 +61,4 @@
   when:
     - ansible_distribution_file_path == '/etc/altlinux-release'
 
-- name: configure passwordless sudo for admin user
-  copy:
-    dest: "/etc/sudoers.d/{{ admin_user|default(current_local_user) }}"
-    owner: root
-    group: root
-    mode: 0600
-    content: "{{ admin_user|default(current_local_user) }} ALL=(ALL) NOPASSWD: ALL"
+
