@@ -1,0 +1,55 @@
+---
+
+- hosts:
+    - lxd
+  roles:
+    - lxd
+
+- hosts:
+    - lxd
+  tasks:
+    - name: update APT cache
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c "apt-get update"
+      with_items: "{{ lxd_containers }}"
+    - name: create /root/.ssh
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c "mkdir -p -m700 /root/.ssh"
+      with_items: "{{ lxd_containers }}"
+    - name: root login by ssh public key
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c 'echo "{{ maintainer.ssh_public_key }}" >> /root/.ssh/authorized_keys'
+      with_items: "{{ lxd_containers }}"
+    - name: start sshd in container
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c 'systemctl enable --now sshd'
+      with_items: "{{ lxd_containers }}"
+    - name: enable LLMNR for systemd-resolved
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c 'sed -re "s/^#LLMNR=no/LLMNR=yes/" -i /etc/systemd/resolved.conf'
+      with_items: "{{ lxd_containers }}"
+    - name: restart systemd-resolved in container
+      command: >
+        lxc shell {{ item.name }} -- /bin/sh -c 'systemctl restart systemd-resolved'
+      with_items: "{{ lxd_containers }}"
+
+- hosts:
+    - lxd_containers
+  roles:
+    - altpython
+  gather_facts: no
+
+- hosts:
+    - lxd_containers
+  roles:
+    - 0wn
+
+- hosts:
+    - distccd
+  roles:
+    - distccd
+
+- hosts:
+    - kerneldev
+  roles:
+    - kerneldev
