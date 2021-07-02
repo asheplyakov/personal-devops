@@ -1,0 +1,14 @@
+[distccd]
+asheplyakov-rocket01 ansible_user=root
+asheplyakov-rocket02 ansible_user=root
+asheplyakov-rocket03 ansible_user=root
+
+[kerneldev]
+asheplyakov-rocket01 ansible_user=root
+asheplyakov-rocket02 ansible_user=root
+asheplyakov-rocket03 ansible_user=root
+
+[lxd]
+asheplyakov-rocket01 ansible_user=root
+asheplyakov-rocket02 ansible_user=root
+asheplyakov-rocket03 ansible_user=root
