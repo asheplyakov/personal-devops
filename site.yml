@@ -54,3 +54,7 @@
 - hosts: mdns
   roles:
     - mdns
+
+- hosts: lxd
+  roles:
+    - lxd
