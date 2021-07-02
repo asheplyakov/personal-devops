@@ -1,5 +1,10 @@
 ---
 
-- name: restart distccd
-  service: name=distcc state=restarted
+- name: kick systemd
+  command: systemctl daemon-reload
   become: true
+
+- name: restart distccd
+  service: name=distccd state=restarted
+  become: true
+

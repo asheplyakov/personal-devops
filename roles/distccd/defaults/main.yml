@@ -1,0 +1,6 @@
+---
+
+distcc_use_distro_package: false
+distcc_local_prefix: /opt/distcc
+distccd_log_level: debug
+distccd_log_dir: /var/log

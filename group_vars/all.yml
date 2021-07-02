@@ -6,3 +6,7 @@ maintainer:
   gpg_key_id: F4C0857F55CD0D0882BDDCE2917B5A464EBCC542
 
 hasher_user: asheplyakov
+
+cross_toolchains:
+  - aarch64-linux-gnu
+  - mipsel-linux-gnu

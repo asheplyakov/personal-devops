@@ -4,6 +4,49 @@
   package: name=distcc state=present
   become: true
 
+- name: install rsync
+  package: name=rsync state=present
+  become: true
+
+- name: install distcc unit file
+  template:
+    src: templates/distccd.service.j2
+    dest: /etc/systemd/system/distccd.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - kick systemd
+  become: true
+
+- name: create distccd log file
+  file:
+    path: "{{ distccd_log_dir }}/distccd.log"
+    state: touch
+    access_time: preserve
+    owner: distccd
+    group: adm
+    mode: 0640
+  become: true
+
+- name: force notified handlers to run
+  meta: flush_handlers
+
+- name: copy local distcc installation
+  synchronize:
+    src: "{{ distcc_local_prefix }}/"
+    dest: "{{ distcc_local_prefix }}/"
+    checksum: true
+    archive: true
+    rsync_opts:
+      - '--one-file-system'
+    verify_host: yes
+  notify:
+    - restart distccd
+  when:
+    - not(distcc_use_distro_package)
+  become: true
+
 - name: install native C compiler
   package: name={{ item }} state=present
   with_items:
@@ -41,3 +84,10 @@
     regexp: "^STARTDISTCC.*"
   become: true
   notify: restart distccd
+
+- name: enable distccd service
+  service:
+    name: distccd
+    enabled: true
+    state: started
+  become: true
