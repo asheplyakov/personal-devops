@@ -60,6 +60,24 @@
   notify: restart distccd
   become: true
 
+- name: install native C++ compiler on Debian
+  package: name={{ item }} state=present
+  with_items:
+    - g++
+  notify: restart distccd
+  when:
+    - ansible_os_family == 'Debian'
+  become: true
+
+- name: install native C++ compiler on ALT/Fedora/RHEL
+  package: name={{ item }} state=present
+  with_items:
+    - gcc-c++
+  notify: restart distccd
+  when:
+    - ansible_os_family != 'Debian'
+  become: true
+
 - name: install C cross-compilers
   package: name=gcc-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
