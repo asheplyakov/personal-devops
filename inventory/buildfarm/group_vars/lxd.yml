@@ -42,4 +42,7 @@ lxd_containers:
     profiles:
       - default
       - altlinux
+    ansible_groups:
+      - distccd
+      - kerneldev
 

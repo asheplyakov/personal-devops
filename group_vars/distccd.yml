@@ -6,7 +6,3 @@ distccd_allowed_nets:
   - "10.64.128.0/24"
 
 distccd_jobs: 24
-
-cross_toolchains:
-  - aarch64-linux-gnu
-  - mipsel-linux-gnu
