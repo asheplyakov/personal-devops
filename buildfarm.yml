@@ -6,7 +6,7 @@
     - lxd
 
 - hosts:
-    - lxd_containers
+    - altlinux
   roles:
     - altpython
   gather_facts: no
