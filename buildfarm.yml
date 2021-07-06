@@ -4,6 +4,7 @@
     - lxd
   roles:
     - lxd
+    - mdns
 
 - hosts:
     - altlinux
@@ -15,6 +16,7 @@
     - lxd_containers
   roles:
     - 0wn
+    - mdns
 
 - hosts:
     - distccd
