@@ -2,3 +2,8 @@
 
 cross_toolchains:
   - aarch64-linux-gnu
+
+buildfarm_users:
+  - name: Dmitry Terekhin
+    username: jqt4
+    ssh_public_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA7ccoKFFO2fa+KgKMi6HbRr9SmdWvZAkfqqdK1fw1hf jqt4@jqt4

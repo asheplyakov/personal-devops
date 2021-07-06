@@ -27,3 +27,26 @@
     - kerneldev
   roles:
     - kerneldev
+
+- hosts:
+    - distccd
+  tasks:
+    - name: create user account
+      user:
+        name: "{{ item.username }}"
+        comment: "{{ item.name }}"
+        password_lock: true
+      become: true
+      loop: "{{ buildfarm_users }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: ssh authentication by public key
+      authorized_key:
+        user: "{{ item.username }}"
+        state: present
+        key: "{{ item.ssh_public_key }}"
+      become: true
+      loop: "{{ buildfarm_users }}"
+      loop_control:
+        label: "{{ item.name }}"
