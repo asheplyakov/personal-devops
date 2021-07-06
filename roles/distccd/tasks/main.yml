@@ -82,6 +82,7 @@
   package: name=gcc-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
   notify: restart distccd
+  when: ansible_distribution_file_path != '/etc/altlinux-release'
   become: true
 
 - name: configure distcc allowed nets
