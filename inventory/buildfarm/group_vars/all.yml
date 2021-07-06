@@ -1,8 +1,5 @@
 ---
 
-cross_toolchains:
-  - aarch64-linux-gnu
-
 buildfarm_users:
   - name: Dmitry Terekhin
     username: jqt4

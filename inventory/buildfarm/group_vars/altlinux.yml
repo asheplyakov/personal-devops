@@ -1,0 +1,8 @@
+---
+
+kerneldev_apt_tasks:
+  - id: 274614
+    description: aarch64-targeted cross-toolchain
+
+cross_toolchains:
+  - cross-gcc8-aarch64-linux-gnu
