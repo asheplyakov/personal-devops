@@ -4,6 +4,12 @@
   package: name=distcc state=present
   become: true
 
+- name: install distccd on ALT Linux
+  package: name=distcc-server state=present
+  when:
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+  become: true
+
 - name: install rsync
   package: name=rsync state=present
   become: true
