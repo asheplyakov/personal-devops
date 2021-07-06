@@ -42,12 +42,55 @@
   with_items: "{{ kernel_build_packages }}"
   become: true
 
+- name: install apt-repo on ALT Linux
+  package: name=apt-repo state=present
+  become: true
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+
+- name: remember md5 hash of /etc/apt/sources.list
+  command: >
+    md5sum /etc/apt/sources.list
+  register: sources_list_before_md5
+  changed_when: False
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+
+- name: add apt tasks on ALT Linux
+  command: >
+    apt-repo add {{ item.id }}
+  loop: "{{ kerneldev_apt_tasks|default([]) }}"
+  loop_control:
+    label: "{{ item.description }}"
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+  become: true
+
+- name: compute md5 hash of /etc/apt/sources.list
+  command: >
+    md5sum /etc/apt/sources.list
+  register: sources_list_after_md5
+  changed_when: False
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+
+- name: update apt cache
+  command: apt-get update
+  become: true
+  when:
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+    - sources_list_after_md5.stdout != sources_list_before_md5.stdout
+
 - name: install cross-binutils
   package: name=binutils-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
+  when: ansible_distribution_file_path != '/etc/altlinux-release'
   become: true
 
 - name: install C cross-compilers
-  package: name=gcc-{{ item }}
+  package: name=gcc-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
+  when: ansible_distribution_file_path != '/etc/altlinux-release'
+  become: true
+
+- name: install C cross-compiler on ALT Linux
+  package: name={{ item }} state=present
+  with_items: "{{ cross_toolchains }}"
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
