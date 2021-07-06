@@ -18,6 +18,16 @@
     mode: 0600
     content: "{{ admin_user|default(current_local_user) }} ALL=(ALL) NOPASSWD: ALL"
 
+- name: enable sudo for root on ALT Linux
+  copy:
+    dest: "/etc/sudoers.d/root"
+    owner: root
+    group: root
+    mode: 0600
+    content: "root ALL=(ALL) NOPASSWD: ALL"
+  when:
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+
 - name: check if user account exists
   command: >
     getent passwd "{{ admin_user|default(current_local_user) }}"
