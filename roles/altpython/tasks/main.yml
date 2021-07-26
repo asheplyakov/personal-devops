@@ -7,26 +7,31 @@
   raw: python2 -c 'import sys; sys.exit(0)'
   register: python2_result
   failed_when: False
+  changed_when: False
 
 - name: check if python base64 module is available
   raw: python2 -c 'import sys; import base64; sys.exit(0)'
   register: python2_base64_result
   failed_when: False
+  changed_when: False
 
 - name: check if python json module is available
   raw: python2 -c 'import sys; import json; sys.exit(0)'
   register: python2_json_result
   failed_when: False
+  changed_when: False
 
 - name: check if python logging module is available
   raw: python2 -c 'import sys; import logging; sys.exit(0)'
   register: python2_logging_result
   failed_when: False
+  changed_when: False
 
 - name: check if python distutils module is available
   raw: python2 -c 'import sys; import distutils; sys.exit(0)'
   register: python2_distutils_result
   failed_when: False
+  changed_when: False
 
 - set_fact:
     python_looks_ok: true
