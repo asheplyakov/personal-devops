@@ -5,4 +5,6 @@ kerneldev_apt_tasks:
     description: aarch64-targeted cross-toolchain
 
 cross_toolchains:
-  - cross-gcc8-aarch64-linux-gnu
+  - aarch64-linux-gnu
+
+distcc_use_distro_packages: true

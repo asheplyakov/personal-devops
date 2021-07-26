@@ -1,0 +1,21 @@
+---
+
+- name: figure out versioned libdir
+  command: >
+    {{ item }}-gcc -print-file-name=cc1
+  register: gcc_cc1_filename
+
+- name: dump GCC specs
+  shell: >
+    {{ item }}-gcc -dumpspecs | 
+    sed -r -e "/^[*]invoke_as:/,/^[*]/ { s; as ; /usr/bin/{{ item }}-as ; }"
+  register: gcc_specs
+
+- name: install fixed GCC spec
+  copy:
+    dest: "{{ gcc_cc1_filename.stdout.strip()|dirname }}/spec"
+    content: "{{ gcc_specs.stdout }}"
+    mode: 0644
+    owner: root
+    group: root
+  become: true

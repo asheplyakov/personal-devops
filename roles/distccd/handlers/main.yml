@@ -8,3 +8,6 @@
   service: name=distccd state=restarted
   become: true
 
+- name: update distcc symlinks
+  command: /usr/sbin/update-distcc-symlinks
+  become: true

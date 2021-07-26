@@ -80,17 +80,15 @@
 - name: install cross-binutils
   package: name=binutils-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
-  when: ansible_distribution_file_path != '/etc/altlinux-release'
   become: true
 
 - name: install C cross-compilers
   package: name=gcc-{{ item }} state=present
   with_items: "{{ cross_toolchains }}"
-  when: ansible_distribution_file_path != '/etc/altlinux-release'
   become: true
 
-- name: install C cross-compiler on ALT Linux
-  package: name={{ item }} state=present
-  with_items: "{{ cross_toolchains }}"
-  when: ansible_distribution_file_path == '/etc/altlinux-release'
-  become: true
+- name: fixup cross-compilers on ALT Linux
+  include_tasks: fixup-altlinux-cross-gcc.yml
+  when:
+    - ansible_distribution_file_path == '/etc/altlinux-release'
+  loop: "{{ cross_toolchains }}"
