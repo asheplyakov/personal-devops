@@ -24,6 +24,8 @@ lxd_profiles:
         runcmd:
           - [ sed, -re, "s/^#LLMNR=no/LLMNR=yes/", -i, /etc/systemd/resolved.conf ]
           - [ systemctl, restart, systemd-resolved ]
+        package_update: true
+        disable_root: 0
         users:
           - name: asheplyakov
             sudo:
@@ -46,4 +48,3 @@ lxd_containers:
       - altlinux
       - distccd
       - kerneldev
-
