@@ -17,6 +17,8 @@
   roles:
     - 0wn
     - mdns
+  vars:
+    mdns_server_only: true
 
 - hosts:
     - distccd
