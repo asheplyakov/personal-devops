@@ -4,6 +4,7 @@
   package:
     name: libnss-mdns
     state: present
+  when: not(mdns_server_only|default('false')|bool)
   become: true
 
 - name: install avahi daemon
