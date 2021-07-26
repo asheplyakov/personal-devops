@@ -1,0 +1,5 @@
+---
+
+- name: update APT cache
+  command: apt-get update
+  become: true
