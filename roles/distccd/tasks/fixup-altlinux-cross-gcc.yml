@@ -13,7 +13,7 @@
 
 - name: install fixed GCC spec
   copy:
-    dest: "{{ gcc_cc1_filename.stdout.strip()|dirname }}/spec"
+    dest: "{{ gcc_cc1_filename.stdout.strip()|dirname }}/specs"
     content: "{{ gcc_specs.stdout }}"
     mode: 0644
     owner: root
