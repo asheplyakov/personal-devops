@@ -9,4 +9,4 @@ kerneldev_apt_tasks:
 cross_toolchains:
   - aarch64-linux-gnu
 
-distcc_use_distro_packages: true
+distcc_use_distro_package: true
