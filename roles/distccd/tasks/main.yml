@@ -45,7 +45,7 @@
     access_time: preserve
     owner: distccd
     group: adm
-    mode: 0640
+    mode: 0644
   become: true
 
 - name: force notified handlers to run
