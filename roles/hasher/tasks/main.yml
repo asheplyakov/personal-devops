@@ -1,13 +1,10 @@
 ---
 
-- name: install mkimage and friends
+- name: install hasher
   apt_rpm: pkg={{ item }} state=present
   with_items:
-    - mkimage
-    - mkimage-preinstall
     - hasher
     - git-core
-  notify: apply sysctl.d knobs
   become: true
 
 - name: enable /proc in hasher chroots
@@ -47,33 +44,13 @@
     - hasher_user is defined
     - user_a_getent.rc|default(0) != 0
   become: true
+
 - name: add user to hasher group
   command: hasher-useradd {{ hasher_user }}
   become: true
   when:
     - hasher_user is defined
     - user_a_getent.rc|default(0) != 0
-- name: add user to wheel group
-  user:
-    name: "{{ hasher_user }}"
-    groups: wheel
-    append: true
-  become: true
-  when:
-    - hasher_user is defined
-    - hasher_enable_wheel|default(true)|bool
-
-- name: enable passwordless sudo for user
-  copy:
-    dest: "/etc/sudoers.d/{{ hasher_user }}"
-    owner: root
-    group: root
-    mode: 0600
-    content: "{{ hasher_user }} ALL=(ALL) NOPASSWD: ALL"
-  become: true
-  when:
-    - hasher_user is defined
-    - hasher_enable_nopasswd_sudo|default(true)|bool
 
 - name: find out hasher_user home directory
   shell: >
