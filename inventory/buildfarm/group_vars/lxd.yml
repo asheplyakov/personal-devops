@@ -46,7 +46,7 @@ lxd_bridge: {}
 
 lxd_containers:
   - name: "altp9-{{ ansible_hostname }}"
-    alias: alt/p9/amd64
+    alias: alt/p9/cloud/amd64
     profiles:
       - default
       - altlinux
