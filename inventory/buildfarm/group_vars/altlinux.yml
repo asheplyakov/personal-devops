@@ -1,9 +1,5 @@
 ---
 
-kerneldev_apt_tasks:
-  - id: 274656
-    description: install-kernel fixes
-
 cross_toolchains:
   - aarch64-linux-gnu
 

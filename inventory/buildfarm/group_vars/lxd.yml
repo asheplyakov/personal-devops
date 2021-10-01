@@ -52,5 +52,6 @@ lxd_containers:
       - altlinux
     ansible_groups:
       - altlinux
+      - altlinux-p9
       - distccd
       - kerneldev
