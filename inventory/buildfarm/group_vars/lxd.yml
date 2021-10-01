@@ -55,3 +55,14 @@ lxd_containers:
       - altlinux-p9
       - distccd
       - kerneldev
+  - name: "sisyphus-{{ ansible_hostname }}"
+    alias: alt/Sisyphus/cloud/amd64
+    profiles:
+      - default
+      - altlinux
+    ansible_groups:
+      - altlinux
+      - altlinux-sisyphus
+      - distccd
+      - kerneldev
+
