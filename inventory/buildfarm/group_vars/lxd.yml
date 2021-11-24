@@ -14,6 +14,11 @@ lxd_profiles:
         nictype: macvlan
         parent: eno1.800
         type: nic
+      eth1:
+        name: eth1
+        nictype: macvlan
+        parent: eno1
+        type: nic
       root:
         path: /
         pool: default
