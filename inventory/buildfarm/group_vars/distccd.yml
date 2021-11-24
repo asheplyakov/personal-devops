@@ -1,9 +1,4 @@
 ---
 
-distccd_allowed_nets:
-  - "127.0.0.1"
-  - "10.42.0.0/24"
-  - "10.64.128.0/24"
-
 distccd_jobs: "{{ (ansible_processor_vcpus|int) * 2 }}"
 

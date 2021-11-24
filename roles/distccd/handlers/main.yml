@@ -9,5 +9,5 @@
   become: true
 
 - name: update distcc symlinks
-  command: /usr/sbin/update-distcc-symlinks
+  command: "{{ distcc_local_prefix|default('/usr') }}/sbin/update-distcc-symlinks"
   become: true

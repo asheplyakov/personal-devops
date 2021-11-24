@@ -111,31 +111,6 @@
     - ansible_distribution_file_path == '/etc/altlinux-release'
   loop: "{{ cross_toolchains }}"
 
-- name: configure distcc allowed nets
-  lineinfile:
-    path: /etc/default/distcc
-    create: true
-    line: "ALLOWEDNETS=\"{{ distccd_allowed_nets|join(' ') }}\""
-    regexp: "^ALLOWEDNETS=.*"
-  become: true
-  notify: restart distccd
-
-- name: set interfaces listened by distccd
-  lineinfile:
-    path: /etc/default/distcc
-    line: "LISTENER=\"{{ distccd_listen|default(['0.0.0.0'])|join(' ') }}\""
-    regexp: "^LISTENER=.*"
-  become: true
-  notify: restart distccd
-
-- name: enable starting distccd
-  lineinfile:
-    path: /etc/default/distcc
-    line: 'STARTDISTCC="true"'
-    regexp: "^STARTDISTCC.*"
-  become: true
-  notify: restart distccd
-
 - name: enable distccd service
   service:
     name: distccd
