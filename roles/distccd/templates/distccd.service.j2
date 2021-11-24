@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=distccd
 Restart=on-failure
-ExecStart={% if distcc_use_distro_package %}/usr{% else %}{{ distcc_local_prefix }}{% endif %}/bin/distccd --daemon --no-detach --log-file={{ distccd_log_dir }}/distccd.log --log-level={{ distccd_log_level }} --allow 127.0.0.1 {% for net in distccd_allowed_nets %} --allow {{ net }}{% endfor %} {% if distccd_listen is defined %}--listen {{ distccd_listen }}{% endif %} {% if distccd_jobs is defined %}--jobs {{ distccd_jobs }}{% endif %}
+ExecStart={% if distcc_use_distro_package %}/usr{% else %}{{ distcc_local_prefix }}{% endif %}/bin/distccd --daemon --no-detach --log-file={{ distccd_log_dir }}/distccd.log --log-level={{ distccd_log_level }} --allow-private {% for net in distccd_allowed_nets %} --allow {{ net }}{% endfor %} --listen {{ distccd_listen|default('::') }} {% if distccd_jobs is defined %}--jobs {{ distccd_jobs }}{% endif %}
 
 
 [Install]
