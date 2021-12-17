@@ -15,6 +15,7 @@
       - libtinfo-dev
       - libssl-dev
       - openssl
+      - u-boot-tools
   when:
     ansible_os_family == 'Debian'
 
@@ -35,6 +36,7 @@
       - libssl-devel
       - make
       - openssl
+      - u-boot-tools
   when: ansible_distribution_file_path == '/etc/altlinux-release'
 
 - name: install basic C development tools
