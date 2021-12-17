@@ -94,3 +94,13 @@
   when:
     - ansible_distribution_file_path == '/etc/altlinux-release'
   loop: "{{ cross_toolchains }}"
+
+- name: install Qt Creator on Debian
+  package: name=qtcreator state=present
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: install Qt Creator on ALT Linux
+  package: name=qt-creator-core state=present
+  become: true
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
