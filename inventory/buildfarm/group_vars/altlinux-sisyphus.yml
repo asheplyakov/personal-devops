@@ -2,5 +2,6 @@
 
 cross_toolchains:
   - aarch64-linux-gnu
+  - arm-linux-gnueabihf
   - mipsel-linux-gnu
   - riscv64-linux-gnu
