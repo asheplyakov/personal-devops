@@ -13,3 +13,6 @@ localhost ansible_connection=local
 [basealt-email]
 localhost ansible_connection=local
 
+[baikal-sdkm]
+localhost ansible_connection=local
+

@@ -1,0 +1,23 @@
+---
+
+- name: install depedencies for SDK-M
+  package: name={{ item }} state=present
+  with_items:
+    - aarch64-linux-gnu-gcc
+    - aarch64-linux-gnu-binutils
+    - bison
+    - build-essential
+    - flex
+    - imagemagick
+    - libfdt-dev
+    - libglib2.0-dev
+    - libarchive-zip-perl
+    - libncurses-dev
+    - libpixman-1-dev
+    - libssl-dev
+    - m4
+    - python3-minimal
+    - uuid-dev
+    - xxd
+    - zlib1g-dev
+  become: true

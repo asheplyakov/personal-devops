@@ -12,6 +12,11 @@
    - altsudo
 
 - hosts:
+    - baikal-sdkm
+  roles:
+    - baikal-sdkm
+
+- hosts:
     - basealt-email
   roles:
     - basealt-email
