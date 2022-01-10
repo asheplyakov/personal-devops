@@ -1,0 +1,125 @@
+---
+
+- name: install required software
+  package: name={{ item }} state=present
+  loop:
+    - msmtp-mta
+    - mutt
+    - notmuch-mutt
+    - offlineimap
+    - openssl
+  become: true
+
+- set_fact:
+    config_dir: "{{ lookup('env', 'HOME') }}/.config"
+    cache_dir: "{{ lookup('env', 'HOME') }}/.cache"
+    email_dir: "{{ lookup('env', 'HOME') }}/Private/mail/basealt"
+    basealt_email_user: "{{ lookup('env', 'USER') }}"
+
+- set_fact:
+    offlineimap_dir: "{{ config_dir }}/offlineimap"
+    mutt_dir: "{{ config_dir }}/mutt"
+    msmtp_dir: "{{ config_dir }}/msmtp"
+    notmuch_dir: "{{ config_dir }}/notmuch"
+
+- name: figure out real name of user
+  shell: >
+    getent passwd {{ basealt_email_user }} | cut -d':' -f5 | sed -re 's/,.*$//'
+  register: email_user_getent_realname
+
+- set_fact:
+    basealt_email_realname: "{{ email_user_getent_realname.stdout.strip() }}"
+  when: basealt_email_realname is undefined
+
+- name: figure out server certificate fingerprint
+  shell: >
+    msmtp --serverinfo --host={{ basealt_smtp_server }} --tls=on --tls-certcheck=off | 
+    sed -rne  's/^\s*SHA256:\s*([0-9a-fA-F:]+)\s*$/\1/p'
+  register: smtp_cert_fingerprint
+  when: basealt_smtp_server_cert_fingerprint is undefined
+
+- set_fact:
+    basealt_smtp_server_cert_fingerprint: "{{ smtp_cert_fingerprint.stdout.strip() }}"
+  when: basealt_smtp_server_cert_fingerprint is undefined
+
+- name: create msmtp config dir
+  file:
+    state: directory
+    path: "{{ msmtp_dir }}"
+    mode: 0755
+
+- name: generate msmtp config file
+  template:
+    src: ./templates/msmtp.config.j2
+    dest: "{{ msmtp_dir }}/config"
+    mode: 0644
+
+- name: create email directory
+  file:
+    path: "{{ email_dir }}"
+    state: directory
+    mode: 0755
+
+- name: figure out IMAP server certificate
+  shell: >
+    openssl s_client -connect {{ basealt_imap_server }}:{{ basealt_imap_port }} </dev/null |
+    sed -rne '/^-----BEGIN CERTIFICATE-----/,/^-----END CERTIFICATE-----/p' |
+    openssl x509 -noout -in - -fingerprint -sha512 |
+    sed -rne 's/^SHA512 Fingerprint=([0-9a-fA-F:]+)\s*$/\1/p' |
+    tr -d ':' |
+    tr '[A-F]' '[a-f]'
+  register: imap_server_cert_fingerprint
+  when: basealt_imap_server_cert_fingerprint is undefined
+
+- set_fact:
+    basealt_imap_server_cert_fingerprint: "{{ imap_server_cert_fingerprint.stdout.strip() }}"
+  when: basealt_imap_server_cert_fingerprint is undefined
+
+- name: create offlineimap config directory
+  file:
+    path: "{{ offlineimap_dir }}"
+    state: directory
+    mode: 0755
+
+- name: create offlineimap config
+  template:
+    src: ./templates/offlineimap.conf.j2
+    dest: "{{ offlineimap_dir }}/offlineimap.conf"
+    mode: 0644
+
+- name: install offlineimap python code
+  copy:
+    src: ./files/offlineimap.py
+    dest: "{{ offlineimap_dir }}/offlineimap.py"
+    mode: 0644
+
+
+- name: create mutt config directory
+  file:
+    path: "{{ mutt_dir }}"
+    state: directory
+    mode: 0755
+
+- name: install mutt config file
+  template:
+    src: ./templates/muttrc.j2
+    dest: "{{ mutt_dir }}/muttrc"
+    mode: 0644
+
+- name: create notmuch config dir
+  file:
+    path: "{{ notmuch_dir }}"
+    state: directory
+    mode: 0755
+
+- name: generate notmuch config file
+  template:
+    src: ./templates/notmuch.config.j2
+    dest: "{{ notmuch_dir }}/config"
+    mode: 0644
+
+- name: create notmuch cache dir
+  file:
+    path: "{{ cache_dir }}/notmuch/mutt"
+    state: directory
+    mode: 0755

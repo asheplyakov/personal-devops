@@ -1,0 +1,11 @@
+account default
+from {{ basealt_email_user }}@basealt.ru
+host {{ basealt_smtp_server }}
+port 25
+tls on
+tls_starttls on
+# msmtp --serverinfo --host={{ basealt_smtp_server }} --tls=on --tls-certcheck=off
+tls_fingerprint {{ basealt_smtp_server_cert_fingerprint }}
+auth on
+user {{ basealt_email_user }}
+passwordeval pass show basealt/email

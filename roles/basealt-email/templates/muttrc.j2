@@ -1,0 +1,39 @@
+
+set folder=~/Private/mail/
+source ~/.config/mutt/muttrc.mailboxes
+set sort = threads
+set sort_aux = reverse-last-date-received
+set sort_re
+set mail_check = 0
+
+set spoolfile = "+basealt/INBOX"
+set record = "+basealt/Sent"
+set postponed = "+basealt/Drafts"
+
+
+set sendmail=/usr/bin/msmtp
+set use_from=yes
+set realname="{{ basealt_email_realname }}"
+set from={{ basealt_email_user }}@basealt.ru
+set envelope_from=yes
+
+
+set sidebar_visible = yes
+bind index,pager \Cp sidebar-prev
+bind index,pager \Cn sidebar-next
+bind index,pager \Co sidebar-open
+
+
+macro index <F8> \
+        "<enter-command>set my_old_pipe_decode=\$pipe_decode my_old_wait_key=\$wait_key nopipe_decode nowait_key<enter>\
+        <shell-escape>env NOTMUCH_CONFIG=$HOME/.config/notmuch/config notmuch-mutt -r --prompt search<enter>\
+        <change-folder-readonly>`echo ${XDG_CACHE_HOME:-$HOME/.cache}/notmuch/mutt/results`<enter>\
+        <enter-command>set pipe_decode=\$my_old_pipe_decode wait_key=\$my_old_wait_key<enter>" \
+        "notmuch: search mail"
+
+macro index <F9> \
+        "<enter-command>set my_old_pipe_decode=\$pipe_decode my_old_wait_key=\$wait_key nopipe_decode nowait_key<enter>\
+        <pipe-message>env NOTMUCH_CONFIG=$HOME/.config/notmuch/config notmuch-mutt -r thread<enter>\
+        <change-folder-readonly>`echo ${XDG_CACHE_HOME:-$HOME/.cache}/notmuch/mutt/results`<enter>\
+        <enter-command>set pipe_decode=\$my_old_pipe_decode wait_key=\$my_old_wait_key<enter>" \
+        "notmuch: reconstruct thread"

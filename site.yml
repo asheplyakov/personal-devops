@@ -11,6 +11,11 @@
   roles:
    - altsudo
 
+- hosts:
+    - basealt-email
+  roles:
+    - basealt-email
+
 - hosts: hasher
   roles:
     - hasher

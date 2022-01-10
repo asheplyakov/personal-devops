@@ -9,3 +9,7 @@ localhost ansible_connection=local
 
 [distccd]
 localhost ansible_connection=local
+
+[basealt-email]
+localhost ansible_connection=local
+

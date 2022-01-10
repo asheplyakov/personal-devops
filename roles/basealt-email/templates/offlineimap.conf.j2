@@ -1,0 +1,34 @@
+[general]
+accounts = basealt
+maxsyncaccounts = 2
+pythonfile = ~/.config/offlineimap/offlineimap.py
+
+[mbnames]
+enabled = yes
+filename = ~/.config/mutt/muttrc.mailboxes
+header = "mailboxes "
+peritem = "+%(accountname)s/%(foldername)s"
+sep = " "
+footer = "\n"
+incremental = no
+
+[Account basealt]
+localrepository = basealt-local
+remoterepository = basealt-imap
+quick = -1
+maxage = {{ basealt_email_maxage }}
+postsynchook = notmuch --config ~/.config/notmuch/config new
+
+
+[Repository basealt-local]
+type = Maildir
+localfolders = ~/Private/mail/basealt
+
+[Repository basealt-imap]
+type = IMAP
+remotehost = air.basealt.ru
+remoteport = {{ basealt_imap_port }}
+remoteuser = {{ basealt_email_user }}
+remotepasseval =  get_pass("basealt/email")
+ssl = yes
+cert_fingerprint = {{ basealt_imap_server_cert_fingerprint }}

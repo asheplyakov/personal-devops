@@ -1,0 +1,20 @@
+[database]
+path={{ email_dir }}
+
+[user]
+name={{ basealt_email_realname }}
+primary_mail={{ basealt_email_user }}@basealt.ru
+other_email={{ basealt_email_user }}@altlinux.org
+
+[new]
+tags=unread;inbox;
+ignore=
+
+[search]
+exclude_tags=deleted;spam;draft
+
+[maildir]
+synchronize_flags=true
+
+[crypto]
+gpg_path=gpg
