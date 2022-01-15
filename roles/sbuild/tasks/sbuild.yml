@@ -1,32 +1,21 @@
 ---
 
 - name: install Debian development packages
-  apt: >
-    name={{ item }}
-    state=latest
+  package: name={{ item }} state=latest
   with_items:
     - "build-essential"
     - debhelper
     - devscripts
     - dh-autoreconf
     - dh-python
-    - dh-systemd
     - fakeroot
     - git-buildpackage
     - sbuild
     - "ubuntu-dev-tools"
   become: True
 
-- name: generate sbuild key
-  command: sbuild-update --keygen
-  become: True
-
 - name: add the user to sbuild group
   command: sbuild-adduser {{ ansible_user_id }}
-  become: True
-
-- name: generate sbuild key
-  command: sbuild-update --keygen
   become: True
 
 - name: add the user to sbuild group
@@ -64,13 +53,12 @@
 # if ansible uses persistent SSH connections (which is the default).
 - name: create {{ os_release }} sbuild chroot
   command: >
-    su -l {{ ansible_user_id }} -c "mk-sbuild
+    sg sbuild -c "mk-sbuild
     --name={{ os_release }}
     --debootstrap-include=eatmydata,ccache,gnupg
     --skip-proposed
     --debootstrap-mirror={{ ubuntu_mirror }}
     {{ os_release }}"
-  become: True
   when:
     - schroot_exists.rc != 0 
 
