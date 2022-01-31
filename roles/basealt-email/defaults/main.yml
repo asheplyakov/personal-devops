@@ -3,6 +3,11 @@
 basealt_smtp_server: air.basealt.ru
 basealt_imap_server: air.basealt.ru
 basealt_imap_port: 993
+basealt_smtp_port: 25
+basealt_smtp_alt_port: 465
+# basealt_email_realname: Ivan Pupkin
+# basealt_email_user: ipupkin
+# basealt_email_full: Ivan Pupkin <ipupkin@basealt.ru>
 
 # basealt_smtp_server_cert_fingerprint: "7F:78:D3:40:F1:AC:78:C2:38:07:0A:8D:A4:5D:BA:69:F5:74:FA:94:07:07:32:33:A2:A0:3A:0E:A8:0E:8F:F7"
 # basealt_imap_server_cert_fingerprint: "ded89f44a060f532c476403d95cd61d924bdc86e6506fb0789cf97588e86822e4468429a8fc2abcb67845c837d46c16d376e8ca8466876d92757767656010695"

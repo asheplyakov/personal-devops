@@ -26,10 +26,15 @@
   shell: >
     getent passwd {{ basealt_email_user }} | cut -d':' -f5 | sed -re 's/,.*$//'
   register: email_user_getent_realname
+  changed_when: False
 
 - set_fact:
     basealt_email_realname: "{{ email_user_getent_realname.stdout.strip() }}"
   when: basealt_email_realname is undefined
+
+- set_fact:
+    basealt_email_full: "{{ basealt_email_realname }} <{{ basealt_email_user }}@basealt.ru>"
+  when: basealt_email_full is undefined
 
 - name: figure out server certificate fingerprint
   shell: >
@@ -123,3 +128,89 @@
     path: "{{ cache_dir }}/notmuch/mutt"
     state: directory
     mode: 0755
+
+- name: configure git user info, step 1/4
+  command: >
+    git config --global --get --default '' user.name
+  register: git_config_user_name_out
+  changed_when: False
+
+- name: configure git user info, step 2/4
+  command: >
+    git config --global --get --default '' user.email
+  register: git_config_user_email_out
+  changed_when: False
+
+- name: configure git user info, step 3/4
+  command: >
+    git config --global user.email "{{ basealt_email }}"
+  when:
+    - basealt_email != git_config_user_email_out.stdout.strip()
+  vars:
+    - basealt_email: "{{ basealt_email_user }}@basealt.ru"
+
+- name: configure git user info, step 4/4
+  command: >
+    git config --global user.name "{{ basealt_email_realname }}"
+  when:
+    - basealt_email_realname != git_config_user_email_out.stdout.strip()
+
+- name: configure git-send-email, step 1/12
+  command: >
+    git config --global --get --default '' sendemail.smtpServer
+  register: git_config_sendemail_smtpServer_out
+  changed_when: False
+
+- name: configure git-send-email, step 2/12
+  command: >
+    git config --global sendemail.smtpServer {{ basealt_smtp_server }}
+  when:
+    - basealt_smtp_server != git_config_sendemail_smtpServer_out.stdout.strip()
+
+- name: configure git-send-email, step 3/12
+  command: >
+    git config --global --get --default '' sendemail.smtpUser
+  register: git_config_sendemail_smtpUser_out
+  changed_when: False
+
+- name: configure git-send-email, step 4/12
+  command: >
+    git config --global sendemail.smtpUser {{ basealt_email_user }}
+  when:
+    - basealt_email_user != git_config_sendemail_smtpUser_out.stdout.strip()
+
+- name: configure git-send-email, step 5/12
+  command: >
+    git config --global --get --default '' sendemail.from
+  register: git_config_sendemail_from_out
+  changed_when: False
+
+- name: configure git-send-email, step 6/12
+  command: >
+    git config --global sendemail.from "{{ basealt_email_full }}"
+  when:
+    - basealt_email_full != git_config_sendemail_from_out.stdout.strip()
+
+- name: configure git-send-email, step 7/12
+  command: >
+    git config --global --get --default '' sendemail.smtpEncryption
+  register: git_config_sendemail_smtpEncryption_out
+  changed_when: False
+
+- name: configure git-send-email, step 8/10
+  command: >
+    git config --global sendemail.smtpEncryption tls
+  when:
+    - git_config_sendemail_smtpEncryption_out.stdout.strip() != 'tls'
+
+- name: configure git-send-email, step 9/12
+  command: >
+    git config --global --get --default '' sendemail.smtpServerPort
+  register: git_config_sendemail_smtpServerPort_out
+  changed_when: False
+
+- name: configure git-send-email, step 10/12
+  command: >
+    git config --global sendemail.smtpServerPort {{ basealt_smtp_alt_port }}
+  when:
+    - git_config_sendemail_smtpServerPort_out.stdout.strip() != basealt_smtp_alt_port|string
