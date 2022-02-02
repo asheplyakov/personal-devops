@@ -1,0 +1,27 @@
+---
+
+- name: install basic development tools on Debian
+  package: name={{ item }} state=present
+  with_items:
+    - build-essential
+    - cmake
+    - g++
+    - ninja-build
+  when: ansible_os_family == 'Debian'
+  become: true
+
+- name: install git-cola and Qt Creator on Debian
+  package: name={{ item }} state=present
+  with_items:
+    - "git-cola"
+    - qtcreator
+  when: ansible_os_family == 'Debian'
+  become: true
+
+- name: install Qt5/gtk integration tools
+  package: name={{ item }} state=present
+  with_items:
+    - "qt5-gtk2-platformtheme"
+    - qt5ct
+  when: ansible_os_family == 'Debian'
+  become: true

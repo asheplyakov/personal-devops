@@ -21,6 +21,11 @@
   roles:
     - basealt-email
 
+- hosts:
+    - cppdev
+  roles:
+    - cppdev
+
 - hosts: hasher
   roles:
     - hasher
