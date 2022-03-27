@@ -1,0 +1,5 @@
+---
+
+# 
+# gitalt_user: username for git.altlinux.org (no default value)
+# gitalt_local_user: local username, default: `whoami`

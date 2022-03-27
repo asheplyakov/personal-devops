@@ -22,6 +22,11 @@
     - basealt-email
 
 - hosts:
+    - gitalt
+  roles:
+    - gitalt
+
+- hosts:
     - cppdev
   roles:
     - cppdev

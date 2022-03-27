@@ -1,0 +1,33 @@
+---
+# set up .ssh/config for using git.altlinux.org git repos and build infrastructure
+
+- name: figure out remote user name
+  command: whoami
+  register: local_user_out
+  when: gitalt_local_user is undefined or gitalt_user is undefined
+
+- set_fact:
+    gitalt_local_user: "{{ local_user_out.stdout_lines[0] }}"
+  when: gitalt_local_user is undefined
+
+- set_fact:
+    gitalt_user: "{{ local_user_out.stdout_lines[0] }}"
+  when: gitalt_user is undefined
+
+- name: create entry for gitery.altlinux.org
+  ssh_config:
+    user: "{{ gitalt_local_user }}"
+    host: "git.alt"
+    hostname: gitery.altlinux.org
+    port: 222
+    remote_user: "alt_{{ gitalt_user }}"
+
+- name: create entry for gyle.altlinux.org
+  ssh_config:
+    user: "{{ gitalt_local_user }}"
+    host: "gyle.alt"
+    hostname: gyle.altlinux.org
+    port: 222
+    remote_user: "alt_{{ gitalt_user }}"
+
+
