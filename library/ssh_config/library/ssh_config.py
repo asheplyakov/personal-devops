@@ -337,7 +337,7 @@ class SSHConfig (object):
 
         ret = {}
         for match in matches:
-            for key, value in match['config'].iteritems():
+            for key, value in match['config'].items():
                 if key not in ret:
                     # Create a copy of the original value,
                     # else it will reference the original list
@@ -631,7 +631,7 @@ class ConfigParser(object):
                 file_content += host_item.get("value") + "\n"
                 continue
             host_item_content = "Host {0}\n".format(host_item.get("host"))
-            for key, value in host_item.get("options").iteritems():
+            for key, value in host_item.get("options").items():
                 if key in replacements:
                     key = replacements[key]
                 if isinstance(value, list):
