@@ -10,6 +10,16 @@
   when: ansible_os_family == 'Debian'
   become: true
 
+- name: install basic development tools on ALT Linux
+  package: name={{ item }} state=present
+  with_items:
+    - cmake
+    - ctest
+    - gcc-c++
+    - ninja-build
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+  become: true
+
 - name: install git-cola and Qt Creator on Debian
   package: name={{ item }} state=present
   with_items:
@@ -18,10 +28,28 @@
   when: ansible_os_family == 'Debian'
   become: true
 
-- name: install Qt5/gtk integration tools
+- name: install Qt Creator and git-cola on ALT Linux
+  package: name={{ item }} state=present
+  loop:
+    - "qt-creator-core"
+    - "git-cola"
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+  become: true
+
+- name: install Qt5/gtk integration tools on Debian
   package: name={{ item }} state=present
   with_items:
     - "qt5-gtk2-platformtheme"
     - qt5ct
   when: ansible_os_family == 'Debian'
+  become: true
+
+- name: install Qt5/gtk integration tools on ALT Linux
+  package:
+    name: "{{ item }}"
+    stats: present
+  loop:
+    - "adwaita-qt5"
+    - qt5ct
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
