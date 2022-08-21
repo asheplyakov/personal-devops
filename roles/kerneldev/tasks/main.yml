@@ -90,12 +90,6 @@
   with_items: "{{ cross_toolchains }}"
   become: true
 
-- name: fixup cross-compilers on ALT Linux
-  include_tasks: fixup-altlinux-cross-gcc.yml
-  when:
-    - ansible_distribution_file_path == '/etc/altlinux-release'
-  loop: "{{ cross_toolchains }}"
-
 - name: install kernel debugging helpers
   package: name={{ item }} state=present
   with_items:
