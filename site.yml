@@ -12,12 +12,12 @@
    - altsudo
 
 - hosts:
-    - baikal-sdkm
+    - baikal_sdkm
   roles:
     - baikal-sdkm
 
 - hosts:
-    - basealt-email
+    - basealt_email
   roles:
     - basealt-email
 
@@ -39,7 +39,7 @@
   roles:
     - gear
 
-- hosts: alt-mkimage
+- hosts: alt_mkimage
   roles:
     - alt-mkimage
 

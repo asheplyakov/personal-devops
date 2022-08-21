@@ -13,9 +13,13 @@ localhost ansible_connection=local
 [distccd]
 localhost ansible_connection=local
 
-[basealt-email]
-localhost ansible_connection=local
+[basealt_email]
+#localhost ansible_connection=local
 
-[baikal-sdkm]
-localhost ansible_connection=local
+[alt_mkimage]
+#localhost ansible_connection=local
+
+[baikal_sdkm]
+#localhost ansible_connection=local
+
 
