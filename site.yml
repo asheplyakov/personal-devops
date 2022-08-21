@@ -71,6 +71,10 @@
   roles:
     - mesadev
 
+- hosts: altdesktop
+  roles:
+    - altdesktop
+
 - hosts: 0wn
   roles:
     - 0wn

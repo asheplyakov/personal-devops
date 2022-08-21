@@ -1,0 +1,45 @@
+---
+
+- name: install GNOME3 core
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - gnome3-minimal
+    - polkit-gnome
+    - gnome-keyring-ssh
+    - pinentry-gnome3
+    - gnome-bluetooth
+    - evince
+  become: true
+
+- name: install Qt5 + GTK style tools
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - adwaita-qt5
+    - qt5ct
+  become: true
+
+- name: install password manager
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - gnupg2
+    - password-store
+    - git-core
+    - wl-clipboard
+  become: true
+
+- name: install email client
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - msmtp
+    - msmtp-sendmail
+    - mutt
+  become: true
+
