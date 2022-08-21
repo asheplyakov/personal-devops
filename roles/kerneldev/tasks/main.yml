@@ -6,6 +6,7 @@
       - build-essential
       - ccache
       - dh-exec
+      - diffstat
       - dwarves
       - git
       - fakeroot
