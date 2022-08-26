@@ -1,0 +1,324 @@
+---
+
+- hosts: 
+   - localhost
+  tasks:
+    - set_fact:
+        destdir: /mnt
+        destvol: /dev/mapper/vg1-alt
+        rootfs_tar: /home/asheplyakov/Downloads/alt-p10-rootfs-systemd-x86_64.tar.xz 
+        ssh_root_key: "{{ lookup('file', '/home/asheplyakov/.ssh/id_rsa.pub') }}"
+
+    - name: umount destvol
+      mount:
+        path: "{{ destdir }}"
+        src: "{{ destvol }}"
+        state: unmounted
+
+    - name: create ext4 filesystem on destvol
+      command: >
+        mke2fs -t ext4 -b 4096 "{{ destvol }}"
+
+    - name: mount destvol
+      command: >
+        mount -t ext4 -o rw,data=ordered,noatime,errors=remount-ro "{{ destvol }}" "{{ destdir }}"
+
+    - name: unpack the archive
+      command: >
+        tar -xavf "{{ rootfs_tar }}" --numeric-owner -C "{{ destdir }}"
+
+    - name: disable extra mirrors in sources.list.d
+      shell: >
+        find "{{ destdir }}/etc/apt/sources.list.d" -type f -name '*.list' -not -name 'yandex.*' |
+        xargs -n1 sed -re 's/^([^#])/# \1/' -i
+      become: true
+
+    - name: set sources.list to yandex mirror
+      command: >
+        sed -re '/http:/ { s/^#[[:space:]]*// }' -i {{ yandex_list }}
+      vars:
+        yandex_list: "{{ destdir }}/etc/apt/sources.list.d/yandex.list"
+
+    - name: create root/.ssh directory
+      file:
+        path: "{{ destdir }}/root/.ssh"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: setup root authentication via ssh key
+      authorized_key:
+        path: "{{ destdir }}/root/.ssh/authorized_keys"
+        user: root
+        key: "{{ ssh_root_key }}"
+
+    - name: wipe out machine-id
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ destdir }}/etc/machine-id"
+        - "{{ destdir }}/var/lib/dbus/machine-id"
+    - name: generate dbus machine id
+      command: >
+        dbus-uuidgen --ensure="{{ destdir }}/var/lib/dbus/machine-id"
+      when: machine_id is undefined
+    - name: set dbus machine id
+      copy:
+        content: "{{ machine_id }}"
+        dest: "{{ destdir }}/var/lib/dbus/machine-id"
+        owner: root
+        group: root
+        mode: 0444
+      when: machine_id is defined
+    - name: copy dbus machine id to /etc
+      copy:
+        dest: "{{ destdir }}/etc/machine-id"
+        src:  "{{ destdir }}/var/lib/dbus/machine-id"
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: figure out dest rootfs UUID
+      command: >
+        lsblk --noheadings -o uuid {{ destvol }}
+      register: dest_rootfs_uuid
+
+    - name: setup root filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /
+        src: "UUID={{ dest_rootfs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,data=ordered,errors=remount-ro,noatime
+        state: present
+
+    - name: figure out current root device
+      command: >
+        findmnt --noheadings -o SOURCE /
+      register: host_root_device
+      changed_when: False
+
+    - name: figure out current root filesystem UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ host_root_device.stdout_lines[0] }}"
+      register: host_rootfs_uuid
+
+    - name: setup host filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /srv/host
+        src: "UUID={{ host_rootfs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,data=ordered,errors=remount-ro,noatime
+        state: present
+
+    - name: create mountpoint for host root filesystem
+      file:
+        path: "{{ destdir }}/srv/host"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: figure out /boot device
+      command: >
+        findmnt --noheadings -o SOURCE /boot
+      register: boot_device
+      changed_when: False
+
+    - name: figure out /boot UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ boot_device.stdout_lines[0] }}"
+      register: bootfs_uuid
+
+    - name: setup /boot filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /boot
+        src: "UUID={{ bootfs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,errors=remount-ro,noatime,nodev,nosuid
+        state: present
+
+    - name: figure out ESP device
+      command: >
+        findmnt --noheadings -o SOURCE /boot/efi
+      register: esp_device
+      changed_when: False
+
+    - name: figure out ESP UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ esp_device.stdout_lines[0] }}"
+      register: esp_uuid
+
+    - name: setup /boot/efi filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /boot/efi
+        src: "UUID={{ esp_uuid.stdout_lines[0] }}"
+        fstype: vfat
+        opts: rw,noatime,umask=0077,noatime
+        state: present
+
+    - name: figure out /home device
+      command: >
+        findmnt --noheadings -o SOURCE /home
+      register: home_device
+      changed_when: False
+
+    - name: figure out /home UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ home_device.stdout_lines[0] }}"
+      register: homefs_uuid
+
+    - name: setup /home filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /home
+        src: "UUID={{ homefs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,data=ordered,errors=remount-ro,noatime
+        state: present
+
+    - name: copy crypttab into chroot
+      copy:
+        src: /etc/crypttab
+        dest: "{{ destdir }}/etc/crypttab"
+        owner: root
+        group: root
+        mode: 0644
+        remote_src: yes
+
+    - name: create /etc/luks directory in chroot
+      file:
+        path: "{{ destdir }}/etc/luks"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: copy LUKS keys into chroot
+      shell: >
+        find /etc/luks -type f -print0 | xargs -0 -r cp -a --target-directory={{ destdir }}/etc/luks
+
+    - name: lift idiotic resource limits
+      command: >
+        sed -re 's/^([^#].*)$/# \1/g' -i {{ destdir }}/etc/security/limits.d/50-defaults.conf
+
+    - name: temporarily replace /etc/resolv.conf
+      copy:
+        dest: "{{ destdir }}/etc/resolv.conf"
+        backup: true
+        content: |
+          nameserver 127.0.0.53
+      register: resolv_conf_stub
+
+    - name: bind mount /boot and ESP into chroot
+      shell: >
+        for dev in /boot /boot/efi; do
+          if ! mountpoint -q {{ destdir }}${dev}; then
+            mount --bind $dev {{ destdir }}${dev};
+          fi;
+        done
+    - name: bind mount virtual filesystems into chroot
+      shell: >
+        for dev in /dev /dev/pts /proc /sys /sys/firmware/efi/efivars; do
+         if ! mountpoint -q {{ destdir }}${dev}; then
+            mount --bind $dev {{ destdir }}${dev};
+         fi;
+        done
+
+    - name: add chroot to dynamic inventory
+      add_host:
+        name: "{{ destdir }}"
+        ansible_user: root
+        ansible_connection: chroot
+        ansible_host: "{{ destdir }}"
+        groups:
+          - altlinux
+
+- hosts:
+    - altlinux
+  roles:
+    - altpython
+  gather_facts: no
+
+- hosts:
+    - altlinux
+  tasks:
+    - name: install ssh server and client
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - openssh-server
+        - openssh-clients
+    - name: ensure sshd is enabled
+      service:
+        name: sshd
+        enabled: true
+    - name: install grub-efi
+      package:
+        name: grub-efi
+        state: present
+    - name: enable cryptodisk support in GRUB
+      lineinfile:
+        path: /etc/sysconfig/grub2
+        line: GRUB_ENABLE_CRYPTODISK=y
+        state: present
+
+    - name: install make-initrd
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "make-initrd"
+        - "make-initrd-lvm"
+        - "make-initrd-luks"
+    - name: enable LVM for make-initrd
+      lineinfile:
+        path: /etc/initrd.mk
+        line: FEATURES += lvm
+    - name: enable LUKS for make-initrd
+      lineinfile:
+        path: /etc/initrd.mk
+        line: FEATURES += luks
+
+    - name: autoselect kernel
+      set_fact:
+        kflavour: un-def
+      when: kflavour is undefined
+    - name: install kernel
+      apt_rpm:
+        pkg: "kernel-image-{{ kflavour }},kernel-modules-drm-{{ kflavour }}"
+        state: present
+
+- hosts:
+    - localhost
+  tasks:
+    - pause:
+        prompt: "check if chroot at {{ destdir }} is OK"
+
+    - name: umount ESP and /boot from chroot
+      shell: >
+        for dev in /boot/efi /boot; do
+          if mountpoint -q {{ destdir }}${dev}; then
+            umount {{ destdir }}${dev};
+          fi;
+        done
+    - name: umount virtual filesystems from chroot
+      shell: >
+        for dev in /sys/firmware/efi/efivars /sys /dev/pts /dev /proc; do
+          if mountpoint -q {{ destdir }}${dev}; then
+            umount {{ destdir }}${dev};
+          fi;
+        done
+
+    - name: restore original resolv.conf file
+      copy:
+        remote_src: true
+        dest: "{{ destdir }}/etc/resolv.conf"
+        src: "{{ resolv_conf_stub.backup_file }}"
+      when: resolv_conf_stub is changed
