@@ -3,6 +3,12 @@
 # installs python2.7 (with stdlib) on ALT Linux so the node
 # can be managed with normal ansible roles
 
+- name: check if python3 binary is available
+  raw: python3 -c 'import sys; sys.exit(0)'
+  register: python3_result
+  failed_when: False
+  changed_when: False
+
 - name: check if python binary is available
   raw: python2 -c 'import sys; sys.exit(0)'
   register: python2_result
@@ -34,6 +40,11 @@
   changed_when: False
 
 - set_fact:
+    python3_looks_ok: true
+  when:
+    - python3_result.rc == 0
+
+- set_fact:
     python_looks_ok: true
   when:
     - python2_result.rc == 0
@@ -41,6 +52,27 @@
     - python2_json_result.rc == 0
     - python2_logging_result.rc == 0
     - python2_distutils_result.rc == 0
+
+- name: check for python3 in APT package list cache
+  raw: apt-cache show python3
+  failed_when: False
+  changed_when: False
+  register: apt_cache_py3
+  when:
+    - python3_looks_ok is undefined
+
+- name: update APT package lists
+  raw: apt-get update
+  when:
+    - python3_looks_ok is undefined
+    - apt_cache_py3.rc != 0
+
+- name: install python3
+  raw: apt-get install -y python3
+  register: apt_py3_install
+  failed_when: False
+  when:
+    - python3_looks_ok is undefined
 
 - name: check if APT package list cache exists
   raw: apt-cache show {{ item }}
@@ -55,29 +87,47 @@
   register: apt_cache_result
   when:
     - python_looks_ok is undefined
+    - python3_looks_ok is undefined or apt_py3_install.rc != 0
 
 - name: update APT package lists
   raw: apt-get update
   when:
     - python_looks_ok is undefined
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
     - apt_cache_result.results | map(attribute='rc') | sum != 0
 
 - name: install python
   raw: apt-get install -y python-base
-  when: python2_result.rc != 0
+  when:
+    - python2_result.rc != 0
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
 
 - name: install most of python stdlib
   raw: apt-get install -y python-modules
-  when: python2_base64_result.rc != 0
+  when:
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
+    - python2_base64_result.rc != 0
 
 - name: install python json
   raw: apt-get install -y python-modules-json
-  when: python2_json_result.rc != 0
+  when:
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
+    - python2_json_result.rc != 0
 
 - name: install python logging
   raw: apt-get install -y python-modules-logging
-  when: python2_logging_result.rc != 0
+  when:
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
+    - python2_logging_result.rc != 0
 
 - name: install python distutils
   raw: apt-get install -y python-modules-distutils
-  when: python2_distutils_result.rc != 0
+  when:
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
+    - python2_distutils_result.rc != 0
