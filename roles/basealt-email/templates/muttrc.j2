@@ -17,6 +17,9 @@ set realname="{{ basealt_email_realname }}"
 set from={{ basealt_email_user }}@basealt.ru
 set envelope_from=yes
 
+# view HTML messages
+auto_view text/html
+alternative_order text/plain text/enriched text/html
 
 set sidebar_visible = yes
 bind index,pager \Cp sidebar-prev
