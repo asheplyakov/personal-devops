@@ -11,6 +11,7 @@
     - pinentry-gnome3
     - gnome-bluetooth
     - evince
+    - xorg-xwayland
   become: true
 
 - name: install Qt5 + GTK style tools
