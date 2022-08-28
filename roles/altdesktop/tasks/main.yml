@@ -44,3 +44,28 @@
     - mutt
   become: true
 
+- name: install dict service and databaseses
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - dict
+    - dictd
+    - dict-mueller7-utf8
+    - dict-web1913
+    - wordnet-dict
+  become: true
+
+- name: enable dictd service
+  service:
+    name: dictd
+    enabled: true
+    state: started
+  become: true
+
+- name: adjust dict.conf
+  lineinfile:
+    path: /etc/dict.conf
+    line: server dict.org
+    state: absent
+  become: true
