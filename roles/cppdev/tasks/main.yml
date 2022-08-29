@@ -17,6 +17,7 @@
     - ctest
     - gcc-c++
     - ninja-build
+    - patch
   when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
 
