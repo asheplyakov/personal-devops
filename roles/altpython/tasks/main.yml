@@ -87,7 +87,8 @@
   register: apt_cache_result
   when:
     - python_looks_ok is undefined
-    - python3_looks_ok is undefined or apt_py3_install.rc != 0
+    - python3_looks_ok is undefined
+    - apt_py3_install.rc != 0
 
 - name: update APT package lists
   raw: apt-get update
