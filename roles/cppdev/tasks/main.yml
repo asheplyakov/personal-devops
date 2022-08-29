@@ -47,7 +47,7 @@
 - name: install Qt5/gtk integration tools on ALT Linux
   package:
     name: "{{ item }}"
-    stats: present
+    state: present
   loop:
     - "adwaita-qt5"
     - qt5ct
