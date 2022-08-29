@@ -15,23 +15,3 @@
     path: /etc/environment
     line: LESS="-RX"
   become: true
-
-- name: add xpra repository GPG key
-  apt_key:
-    id: 18ADB31CF18AD6BB
-    url: "https://xpra.org/gpg.asc"
-    state: present
-  when: ansible_os_family == 'Debian'
-  become: true
-
-- name: add xpra apt repository
-  apt_repository:
-    repo: "deb https://xpra.org {{ ansible_distribution_release }} main"
-    filename: xpra
-    state: present
-  when: ansible_os_family == 'Debian'
-  become: true
-
-- name: install xpra
-  package: name=xpra state=present
-  become: true
