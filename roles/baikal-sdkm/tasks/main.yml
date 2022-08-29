@@ -20,4 +20,26 @@
     - uuid-dev
     - xxd
     - zlib1g-dev
+  when: ansible_os_family == 'Debian'
+  become: true
+
+- name: install depedencies for SDK-M on ALT Linux
+  package: name={{ item }} state=present
+  loop:
+    - gcc
+    - gcc-c++
+    - gcc-aarch64-linux-gnu
+    - bison
+    - flex
+    - fonts-ttf-freefont
+    - libfdt-devel
+    - libssl-devel
+    - libuuid-devel
+    - m4
+    - make
+    - python3
+    - xxd
+    - zlib-devel
+    - ImageMagick-tools
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
