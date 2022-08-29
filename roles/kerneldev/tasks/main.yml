@@ -36,6 +36,7 @@
       - libtinfo-devel
       - libssl-devel
       - make
+      - patch
       - openssl
       - u-boot-tools
   when: ansible_distribution_file_path == '/etc/altlinux-release'
