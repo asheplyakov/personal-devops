@@ -1,5 +1,11 @@
 ---
 
+- name: lift idiotic security limits
+  file:
+    path: /etc/security/limits.d/50-defaults.conf
+    state: absent
+  become: true
+
 - name: install GNOME3 core
   package:
     name: "{{ item }}"
@@ -12,6 +18,9 @@
     - gnome-bluetooth
     - evince
     - xorg-xwayland
+    - fonts-ttf-liberation
+    - firefox-esr-wayland
+    - pulseaudio-daemon
   become: true
 
 - name: install Qt5 + GTK style tools
