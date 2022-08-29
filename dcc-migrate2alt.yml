@@ -1,0 +1,239 @@
+---
+
+- hosts: 
+   - migrants
+  tasks:
+    - set_fact:
+        destdir: /mnt
+        destvol: /dev/mapper/vg0-alt
+        local_rootfs_tar: /home/asheplyakov/Downloads/alt-p10-rootfs-systemd-x86_64.tar.xz 
+        rootfs_tar: /tmp/alt-p10-rootfs-systemd-x86_64.tar.xz 
+        ssh_root_key: "{{ lookup('file', '/home/asheplyakov/.ssh/id_rsa.pub') }}"
+
+    - name: install ansible
+      package: name=ansible state=present
+
+    - name: copy rootfs tarball
+      copy:
+        dest: "{{ rootfs_tar }}"
+        src: "{{ local_rootfs_tar }}"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: check if destvol exists
+      stat:
+        path: "{{ destvol }}"
+        get_checksum: no
+      register: destvol_stat
+      failed_when: False
+
+    - name: create destvol
+      command: >
+        lvcreate -L32G -n alt vg0
+      when: destvol_stat.stat.islnk is undefined
+
+    - name: umount destvol
+      mount:
+        path: "{{ destdir }}"
+        src: "{{ destvol }}"
+        state: unmounted
+
+    - name: create ext4 filesystem on destvol
+      command: >
+        mke2fs -t ext4 -b 4096 "{{ destvol }}"
+
+    - name: mount destvol
+      command: >
+        mount -t ext4 -o rw,data=ordered,noatime,errors=remount-ro "{{ destvol }}" "{{ destdir }}"
+
+    - name: unpack the archive
+      command: >
+        tar -xavf "{{ rootfs_tar }}" --numeric-owner -C "{{ destdir }}"
+
+    - name: disable extra mirrors in sources.list.d
+      shell: >
+        find "{{ destdir }}/etc/apt/sources.list.d" -type f -name '*.list' -not -name 'yandex.*' |
+        xargs -n1 sed -re 's/^([^#])/# \1/' -i
+      become: true
+
+    - name: set sources.list to yandex mirror
+      command: >
+        sed -re '/http:/ { s/^#[[:space:]]*// }' -i {{ yandex_list }}
+      vars:
+        yandex_list: "{{ destdir }}/etc/apt/sources.list.d/yandex.list"
+
+    - name: create root/.ssh directory
+      file:
+        path: "{{ destdir }}/root/.ssh"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+
+    - name: setup root authentication via ssh key
+      authorized_key:
+        path: "{{ destdir }}/root/.ssh/authorized_keys"
+        user: root
+        key: "{{ ssh_root_key }}"
+
+    - name: wipe out machine-id
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ destdir }}/etc/machine-id"
+        - "{{ destdir }}/var/lib/dbus/machine-id"
+    - name: generate dbus machine id
+      command: >
+        dbus-uuidgen --ensure="{{ destdir }}/var/lib/dbus/machine-id"
+      when: machine_id is undefined
+    - name: set dbus machine id
+      copy:
+        content: "{{ machine_id }}"
+        dest: "{{ destdir }}/var/lib/dbus/machine-id"
+        owner: root
+        group: root
+        mode: 0444
+      when: machine_id is defined
+    - name: copy dbus machine id to /etc
+      copy:
+        dest: "{{ destdir }}/etc/machine-id"
+        src:  "{{ destdir }}/var/lib/dbus/machine-id"
+        remote_src: true
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: figure out dest rootfs UUID
+      command: >
+        lsblk --noheadings -o uuid {{ destvol }}
+      register: dest_rootfs_uuid
+
+    - name: setup root filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /
+        src: "UUID={{ dest_rootfs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,data=ordered,errors=remount-ro,noatime
+        state: present
+
+    - name: figure out current root device
+      command: >
+        findmnt --noheadings -o SOURCE /
+      register: host_root_device
+      changed_when: False
+
+    - name: figure out current root filesystem UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ host_root_device.stdout_lines[0] }}"
+      register: host_rootfs_uuid
+
+    - name: setup host filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /srv/host
+        src: "UUID={{ host_rootfs_uuid.stdout_lines[0] }}"
+        fstype: ext4
+        opts: rw,data=ordered,errors=remount-ro,noatime
+        state: present
+
+    - name: create mountpoint for host root filesystem
+      file:
+        path: "{{ destdir }}/srv/host"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: figure out ESP device
+      command: >
+        findmnt --noheadings -o SOURCE /boot/efi
+      register: esp_device
+      changed_when: False
+
+    - name: figure out ESP UUID
+      command: >
+        lsblk --noheadings -o uuid "{{ esp_device.stdout_lines[0] }}"
+      register: esp_uuid
+
+    - name: create ESP mount point
+      file:
+        path: "{{ destdir }}/boot/efi"
+        state: directory
+        owner: root
+        group: root
+        mode: 0750
+
+    - name: setup /boot/efi filesystem entry in fstab
+      mount:
+        fstab: "{{ destdir }}/etc/fstab"
+        path: /boot/efi
+        src: "UUID={{ esp_uuid.stdout_lines[0] }}"
+        fstype: vfat
+        opts: rw,noatime,umask=0077,noatime
+        state: present
+
+    - name: temporarily replace /etc/resolv.conf
+      copy:
+        dest: "{{ destdir }}/etc/resolv.conf"
+        backup: true
+        content: |
+          nameserver 127.0.0.53
+      register: resolv_conf_stub
+
+    - name: bind mount ESP into chroot
+      shell: >
+        for dev in /boot/efi; do
+          if ! mountpoint -q {{ destdir }}${dev}; then
+            mount --bind $dev {{ destdir }}${dev};
+          fi;
+        done
+    - name: bind mount virtual filesystems into chroot
+      shell: >
+        for dev in /dev /dev/pts /proc /sys /sys/firmware/efi/efivars; do
+         if ! mountpoint -q {{ destdir }}${dev}; then
+            mount --bind $dev {{ destdir }}${dev};
+         fi;
+        done
+
+- hosts:
+   - localhost
+  tasks:
+    - pause:
+        prompt: run the 2nd stage playbook locally
+
+- hosts:
+    - migrants
+  tasks:
+    - pause:
+        prompt: "check if chroot at {{ destdir }} is OK"
+
+    - name: umount ESP from chroot
+      shell: >
+        for dev in /boot/efi; do
+          if mountpoint -q {{ destdir }}${dev}; then
+            umount {{ destdir }}${dev};
+          fi;
+        done
+    - name: umount virtual filesystems from chroot
+      shell: >
+        for dev in /sys/firmware/efi/efivars /sys /dev/pts /dev /proc; do
+          if mountpoint -q {{ destdir }}${dev}; then
+            umount {{ destdir }}${dev};
+          fi;
+        done
+
+    - name: restore original resolv.conf file
+      copy:
+        remote_src: true
+        dest: "{{ destdir }}/etc/resolv.conf"
+        src: "{{ resolv_conf_stub.backup_file }}"
+      when: resolv_conf_stub is changed
+    - name: redirect resolv.conf to systemd-resolved
+      file:
+        path: "{{ destdir }}/etc/resolv.conf"
+        src: ../run/systemd/resolve/stub-resolv.conf
+        state: link
+        force: yes

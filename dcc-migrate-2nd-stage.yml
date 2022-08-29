@@ -1,0 +1,114 @@
+---
+
+- hosts:
+    - localhost
+  tasks:
+    - set_fact:
+        destdir: /mnt
+
+    - name: add chroot to dynamic inventory
+      add_host:
+        name: "{{ destdir }}"
+        ansible_user: root
+        ansible_connection: chroot
+        ansible_host: "{{ destdir }}"
+        groups:
+          - altlinux
+
+- hosts:
+    - altlinux
+  roles:
+    - altpython
+  gather_facts: no
+
+- hosts:
+    - altlinux
+  tasks:
+    - name: install ssh server and client
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - openssh-server
+        - openssh-clients
+    - name: ensure sshd is enabled
+      service:
+        name: sshd
+        enabled: true
+    - name: install networking stuff
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - systemd-networkd
+        - avahi-daemon
+        - libnss-mdns
+    - name: setup systemd-networkd to configure Ethernet interfaces
+      copy:
+        dest: /etc/systemd/network/10_ethernet.network
+        owner: root
+        group: root
+        mode: 0644
+        content: |
+          [Match]
+          Type=ether
+          [Network]
+          LLMNR=yes
+          DHCP=ipv4
+    - name: enable networking services
+      service:
+        name: "{{ item }}"
+        enabled: true
+      loop:
+        - systemd-networkd
+        - systemd-resolved
+        - avahi-daemon
+
+    - name: get current hostname
+      command: hostname
+      register: hostname_out
+      changed_when: False
+
+    - name: record current hostname
+      copy:
+        dest: /etc/hostname
+        owner: root
+        group: root
+        mode: 0644
+        content: "{{ hostname_out.stdout_lines[0] }}"
+
+    - name: install grub-efi
+      package:
+        name: grub-efi
+        state: present
+
+    - name: install make-initrd
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "make-initrd"
+        - "make-initrd-lvm"
+
+    - name: enable LVM for make-initrd
+      lineinfile:
+        path: /etc/initrd.mk
+        line: FEATURES += lvm
+
+    - name: install firmware blobs
+      package:
+        name: firmware-linux
+        state: present
+
+    - name: autoselect kernel
+      set_fact:
+        kflavour: un-def
+      when: kflavour is undefined
+    - name: install kernel
+      apt_rpm:
+        pkg: "kernel-image-{{ kflavour }},kernel-modules-drm-{{ kflavour }}"
+        state: present
+
+    - name: install grub to ESP
+      command: >
+        grub-install --no-nvram --target=x86_64-efi
