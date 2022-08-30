@@ -15,3 +15,9 @@
     path: /etc/environment
     line: LESS="-RX"
   become: true
+
+- name: install vipw on ALT Linux
+  package:
+    name: shadow-edit
+    state: present
+  become: true
