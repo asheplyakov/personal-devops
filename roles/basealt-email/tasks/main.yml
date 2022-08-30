@@ -1,6 +1,6 @@
 ---
 
-- name: install required software
+- name: install required software on Debian
   package: name={{ item }} state=present
   loop:
     - msmtp-mta
@@ -8,6 +8,19 @@
     - notmuch-mutt
     - offlineimap
     - openssl
+  when: ansible_os_family == 'Debian'
+  become: true
+
+- name: install required software on ALT Linux
+  package: name={{ item }} state=present
+  loop:
+    - msmtp
+    - msmtp-sendmail
+    - mutt
+    - notmuch-mutt
+    - offlineimap
+    - openssl
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
 
 - set_fact:
@@ -21,6 +34,10 @@
     mutt_dir: "{{ config_dir }}/mutt"
     msmtp_dir: "{{ config_dir }}/msmtp"
     notmuch_dir: "{{ config_dir }}/notmuch"
+
+- set_fact:
+    mutt_has_sidebar: false
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
 
 - name: figure out real name of user
   shell: >
