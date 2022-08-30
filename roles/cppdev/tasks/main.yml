@@ -16,6 +16,9 @@
     - cmake
     - ctest
     - gcc-c++
+    - man-pages
+    - man-pages-posix
+    - man-pages-posix-devel
     - ninja-build
     - patch
   when: ansible_distribution_file_path == '/etc/altlinux-release'

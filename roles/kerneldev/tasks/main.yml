@@ -36,6 +36,9 @@
       - libtinfo-devel
       - libssl-devel
       - make
+      - man-pages
+      - man-pages-posix
+      - man-pages-posix-devel
       - patch
       - openssl
       - u-boot-tools
