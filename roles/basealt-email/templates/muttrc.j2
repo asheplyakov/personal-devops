@@ -17,6 +17,10 @@ set realname="{{ basealt_email_realname }}"
 set from={{ basealt_email_user }}@basealt.ru
 set envelope_from=yes
 
+# arroy keys scroll inside the message rather than the index
+bind pager <up> previous-line
+bind pager <down> next-line
+
 # view HTML messages
 auto_view text/html
 alternative_order text/plain text/enriched text/html
