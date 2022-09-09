@@ -21,3 +21,9 @@
     name: shadow-edit
     state: present
   become: true
+
+- name: ensure /etc/environment is processed on ALT Linux
+  lineinfile:
+    path: /etc/pam.d/system-auth-common
+    line: session optional pam_env.so envfile=/etc/environment
+  become: true
