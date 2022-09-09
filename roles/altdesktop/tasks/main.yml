@@ -21,6 +21,7 @@
     - fonts-ttf-liberation
     - firefox-esr-wayland
     - pulseaudio-daemon
+    - pulseaudio-gsettings
   become: true
 
 - name: install Qt5 + GTK style tools
