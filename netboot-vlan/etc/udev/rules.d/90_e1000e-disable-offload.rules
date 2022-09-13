@@ -1,0 +1,28 @@
+
+# Intel gigabit NIC (e1000e driver) goes belly up if 
+# * IP masquerading is enabled
+# * The NIC is configured to process (VLAN) tagged traffic
+# Packets gets lost, and the kernel complains like this:
+#
+# e1000e 0000:00:1f.6 eno1: Detected Hardware Unit Hang:
+#                                                TDH                  <d6>
+#                                                TDT                  <d9>
+#                                                next_to_use          <d9>
+#                                                next_to_clean        <d6>
+#                                              buffer_info[next_to_clean]:
+#                                                time_stamp           <1001c5e57>
+#                                                next_to_watch        <d8>
+#                                                jiffies              <1001c7400>
+#                                                next_to_watch.status <0>
+#                                              MAC Status             <40080083>
+#                                              PHY Status             <796d>
+#                                              PHY 1000BASE-T Status  <3800>
+#                                              PHY Extended Status    <3000>
+#                                              PCI Status             <10>
+# e1000e 0000:00:1f.6 eno1: Reset adapter unexpectedly
+#
+# To avoid the problem disable 
+# * VLAN RX/TX acceleration and 
+# * scatter-gather acceleration
+
+SUBSYSTEM=="net", ENV{ID_VENDOR_ID}=="0x8086", ENV{ID_MODEL_ID}=="0x15fa", RUN+="/usr/sbin/ethtool -K $env{INTERFACE} rxvlan off txvlan off sg off"

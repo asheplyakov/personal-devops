@@ -1,0 +1,18 @@
+[Unit]
+Description=Static content http server
+ConditionPathExists=/srv/netboot/http
+BindsTo=netnsboot.service
+JoinsNamespaceOf=netnsboot.service
+After=syslog.target network.target netnsboot-helper.service
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/srv/netboot
+ExecStart=/usr/local/bin/staticweb
+NoNewPrivileges=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

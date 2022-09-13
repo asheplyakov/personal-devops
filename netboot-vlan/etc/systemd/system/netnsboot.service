@@ -1,0 +1,18 @@
+[Unit]
+Description=Named network namespace for PXE/netboot services
+JoinsNamespaceOf=netnsnetboot.service
+After=syslog.target network.target network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+PrivateNetwork=true
+
+ExecStartPre=-/usr/bin/env ip netns delete netboot
+ExecStart=/usr/bin/env ip netns add netboot
+ExecStart=/usr/bin/env ip netns exec netboot ip link set up dev lo
+ExecStart=/usr/bin/env umount /run/netns/netboot
+ExecStart=/usr/bin/env mount --bind /proc/self/ns/net /run/netns/netboot
+
+[Install]
+WantedBy=multi-user.target

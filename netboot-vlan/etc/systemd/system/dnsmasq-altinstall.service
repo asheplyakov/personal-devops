@@ -1,0 +1,17 @@
+[Unit]
+Description=Network install (PXE) proxy DHCP+TFTP server
+Documentation=man:dnsmasq(8)
+ConditionPathExists=/etc/dnsmasq-altinstall.conf
+BindsTo=netnsboot.service
+JoinsNamespaceOf=netnsboot.service
+After=syslog.service network.target netnsboot-helper.service
+
+[Service]
+Type=simple
+PrivateNetwork=true
+PrivateTmp=true
+Restart=on-failure
+ExecStart=/usr/sbin/dnsmasq -k -C /etc/dnsmasq-altinstall.conf --conf-dir=/etc/dnsmasq-altinstall.conf.d,*.conf
+
+[Install]
+WantedBy=multi-user.target

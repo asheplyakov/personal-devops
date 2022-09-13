@@ -1,0 +1,6 @@
+[NetDev]
+Name=eno1.996
+Kind=vlan
+
+[VLAN]
+Id=996

@@ -1,0 +1,22 @@
+[Unit]
+Description=Named network namespace for PXE/netboot services helper
+Wants=sys-devices-virtual-net-bootbr.device
+After=syslog.target network.target network-online.target sys-devices-virtual-net-netbootbr.device sys-subsystem-net-devices-netbootbr.device netnsboot.service
+BindsTo=netnsboot.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+
+ExecStartPre=-/usr/bin/env ip link delete vethnboot0
+ExecStart=/usr/bin/env ip link add vethnboot0 type veth peer name vethnboot1
+ExecStart=/usr/bin/env brctl addif netbootbr vethnboot0
+ExecStart=/usr/bin/env ip link set vethnboot1 netns netboot name mv0
+ExecStart=/usr/bin/env ip netns exec netboot ip addr add 10.42.0.2/24 dev mv0
+ExecStart=/usr/bin/env ip link set up dev vethnboot0
+ExecStart=/usr/bin/env ip netns exec netboot ip link set up dev mv0 up
+ExecStart=-/usr/bin/env ip netns exec netboot ip route del default
+ExecStart=/usr/bin/env ip netns exec netboot ip route add default via 10.42.0.1 dev mv0
+
+[Install]
+WantedBy=multi-user.target
