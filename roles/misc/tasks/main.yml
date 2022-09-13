@@ -20,10 +20,19 @@
   package:
     name: shadow-edit
     state: present
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
 
 - name: ensure /etc/environment is processed on ALT Linux
   lineinfile:
     path: /etc/pam.d/system-auth-common
     line: session optional pam_env.so envfile=/etc/environment
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
+  become: true
+
+- name: install vidir on ALT Linux
+  package:
+    name: moreutils
+    state: present
+  when: ansible_distribution_file_path == '/etc/altlinux-release'
   become: true
