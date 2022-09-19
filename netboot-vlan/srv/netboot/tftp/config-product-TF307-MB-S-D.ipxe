@@ -1,0 +1,3 @@
+#!ipxe
+
+set extra_kernel_cmdline console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x20230000 audit=0 ignore_loglevel

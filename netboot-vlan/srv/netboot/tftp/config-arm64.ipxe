@@ -1,0 +1,47 @@
+#!ipxe
+
+# run config for specific host name (if available)
+isset ${hostname} && chain --replace --autofree config-host-${hostname}.ipxe ||
+# run config for specific SMBIOS UUID (if available)
+isset ${smbios/uuid} && chain --replace --autofree config-uuid-${smbios/uuid}.ipxe ||
+# run config for specific MAC address (if available)
+chain --replace --autofree config-mac-${mac:hexraw}.ipxe ||
+
+# load settings for specific board model (if available)
+isset ${smbios/product} && chain --autofree config-product-${smbios/product}.ipxe ||
+# load settings for specific manufacturer
+# (for virtual machines: manufacturer == QEMU)
+isset ${smbios/manufacturer} && chain --autofree config-manufacturer-${smbios/manufacturer}.ipxe ||
+
+set lang:string ru_RU 
+
+:start
+
+menu Boot options
+
+item alt-workstation-10.0-aarch64-livecd ALT Workstation 10.0 LiveCD, via HTTP
+item regular-gnome3-20220907-aarch64-livecd GNOME 3 20220907 LiveCD, via HTTP
+item --key 0x107e switch_language Switch language [F5] (currently ${lang})
+item --key 0x187e shell iPXE shell [F11]
+item --key 0x197e exit Exit to firmware [F12]
+
+choose --default alt-workstation-10.0-aarch64-livecd --timeout 30000 option && goto ${option}
+
+:switch_language
+iseq ${lang} en_US && set lang ru_RU && goto start ||
+iseq ${lang} ru_RU && set lang en_US && goto start ||
+goto start
+
+:shell shell
+
+:exit exit
+
+:alt-workstation-10.0-aarch64-livecd
+kernel http://netboot.lan/tftp/alt-workstation-10.0-aarch64.iso.d/vmlinuz initrd=initrd.img root=bootchain bootchain=fg,altboot ip=dhcp4 changedisk fastboot live automatic=method:http,network:dhcp,server:netboot.lan,directory:/http/alt-workstation-10.0-aarch64.iso stagename=live showopts lang=${lang} ${extra_kernel_cmdline}
+initrd http://netboot.lan/tftp/alt-workstation-10.0-aarch64.iso.d/initrd.img
+boot
+
+:regular-gnome3-20220907-aarch64-livecd
+kernel http://netboot.lan/tftp/regular-gnome3-20220907-aarch64.iso.d/vmlinuz initrd=initrd.img root=bootchain bootchain=fg,altboot ip=dhcp4 changedisk fastboot live automatic=method:http,network:dhcp,server:netboot.lan,directory:/http/regular-gnome3-20220907-aarch64.iso stagename=live showopts lang=${lang} ${extra_kernel_cmdline}
+initrd http://netboot.lan/tftp/regular-gnome3-20220907-aarch64.iso.d/initrd.img
+boot
